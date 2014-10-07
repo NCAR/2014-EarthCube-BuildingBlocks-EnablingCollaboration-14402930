@@ -7,5 +7,15 @@ EarthCube Building Blocks: Collaborative Grant: Enabling Scientific Collaboratio
 
 ##Places
 
-Some of the relevant information for this project can be found on [the EarthCub Project Space](http://workspace.earthcube.org/enabling-scientific-collaboration-and-discovery-through-semantic-connections).
+### EarthCube Project Space
+Some of the relevant information for this project can be found on [the EarthCube Project Space](http://workspace.earthcube.org/enabling-scientific-collaboration-and-discovery-through-semantic-connections).
+
+### GitHub Wiki (in this repo)
+
+
+### Google Drive Shared Folder
+
+
+
+
 
