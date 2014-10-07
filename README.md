@@ -14,7 +14,7 @@ Some of the relevant information for this project can be found on [the EarthCube
 The [wiki](https://github.com/UCAR/2014-EarthCube-BuildingBlocks-EnablingCollaboration-14402930/wiki) will be used for project/code related items.  This information may one day become public and usable by others.
 
 ### Google Drive Shared Folder
-
+The [shared drive](https://drive.google.com/a/ucar.edu/folderview?id=0B_NJP_ik1Aj-dWNyT09odUNFd00&usp=sharing_eid) is used for shared project assets.
 
 
 
