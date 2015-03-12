@@ -1,6 +1,6 @@
 # UNAVCO
 
-##Project personel 
+##Project personnel 
 
 Name  | Email | Title | Role
 ------------- | ------------- | ------------- | -------------
