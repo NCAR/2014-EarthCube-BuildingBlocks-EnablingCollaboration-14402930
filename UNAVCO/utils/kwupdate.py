@@ -37,18 +37,22 @@ def main(argv):
                 writer = csv.writer(outfile, dialect=csv.excel)
                 for i,row in enumerate(reader):
                     doi = row[doi_col]
-    
-                    r = requests.get('http://dx.doi.org/'+doi,headers={'Accept': 'application/vnd.citationstyles.csl+json'})
-                    print doi
-                    if r.status_code == 200 :
-                        robj = json.loads(r.text)
+                    
+                    if doi :
+                        r = requests.get('http://dx.doi.org/'+doi,headers={'Accept': 'application/vnd.citationstyles.csl+json'})
                         
-                        if robj.has_key('subject'):
-                            row.append( ";".join(robj['subject']) )
-                        else:
-                            row.append( '' )
+                        print doi
+                        if r.status_code == 200 :
+                            robj = json.loads(r.text)
                             
-                        writer.writerow(row)
+                            if robj.has_key('subject'):
+                                row.append( ";".join(robj['subject']) )
+                            else:
+                                row.append( '' )
+                                
+                            writer.writerow(row)
+                    else:
+                        print "No DOI in column."
     else :
         usage()
         sys.exit()
