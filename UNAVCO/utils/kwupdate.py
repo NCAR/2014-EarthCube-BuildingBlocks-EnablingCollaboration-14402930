@@ -1,17 +1,19 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*- 
 
-import csv, requests, json, getopt, sys
+
+import csv, requests, json, getopt, sys, pprint
 
 def usage():
     print """Create a csv file with crosscite keywords appended to the last column. 
-Usage : kwupdate -i <infile> -o <outfile> -c <doi_column_location>
+Usage : kwupdate [-i <infile> | -d doi] -o <outfile> -c <doi_column_location>
     """
     
 def main(argv):
     infname, outfname, doi_col = None, None, None 
     
     try:                                
-        opts, args = getopt.getopt(argv, "hi:o:c:", ["help", "infile=","outfile=","column="]) 
+        opts, args = getopt.getopt(argv, "hi:o:d:c:", ["help", "doi=", "infile=","outfile=","column="]) 
     except getopt.GetoptError:           
         usage()                          
         sys.exit(2)  
@@ -22,6 +24,8 @@ def main(argv):
             sys.exit()
         elif opt in ("-i", "--infile"): 
             infname = arg   
+        elif opt in ("-d", "--doi"): 
+            doi = arg
         elif opt in ("-o", "--outfile"): 
             outfname = arg   
         elif opt in ("-c", "--column"): 
@@ -43,17 +47,31 @@ def main(argv):
                         
                         print doi
                         if r.status_code == 200 :
-                            robj = json.loads(r.text)
-                            
-                            if robj.has_key('subject'):
-                                row.append( ";".join(robj['subject']) )
-                            else:
-                                row.append( '' )
+                            try:
+                                robj = json.loads(r.text)
                                 
-                            writer.writerow(row)
+                                if robj.has_key('subject'):
+                                    row.append( ";".join(robj['subject']) )
+                                else:
+                                    row.append( '' )
+                                    
+                                writer.writerow(row)
+                            except:
+                                print "\tThere was a problem (check JSON output) with the doi %s." % doi
+                                pass                                
                     else:
                         print "No DOI in column."
-    else :
+    elif doi :
+        print doi
+        r = requests.get('http://dx.doi.org/'+doi,headers={'Accept': 'application/vnd.citationstyles.csl+json'})
+        if r.status_code == 200 :
+            try:
+                pprint.PrettyPrinter(indent=4).pprint(json.loads(r.text.encode("utf-8")))
+            except:
+                print "\tThere was a problem (check JSON output) with the doi %s." % doi
+                pass
+        
+    else:
         usage()
         sys.exit()
         
