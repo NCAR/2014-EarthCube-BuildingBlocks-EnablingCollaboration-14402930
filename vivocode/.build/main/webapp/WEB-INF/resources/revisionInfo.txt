@@ -1,4 +1,0 @@
-2015-05-07 12:36:58
-vitroCore ~ rel-1.8-rc2-7-g2058fbf tag ~ 2058fbf
-nihvivo ~ rel-1.8-rc2-16-g70ff560 tag ~ 70ff560
-earthcollab ~ unknown ~ unknown
