@@ -1108,6 +1108,15 @@
     <servlet-name>individual</servlet-name>
     <servlet-class>edu.cornell.mannlib.vitro.webapp.controller.individual.IndividualController</servlet-class>
   </servlet>
+  
+   <servlet>
+    <servlet-name>ExternalIndividualController</servlet-name>
+    <servlet-class>edu.cornell.mannlib.vitro.webapp.controller.individual.ExternalIndividualController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExternalIndividualController</servlet-name>
+    <url-pattern>/externalIndividualController</url-pattern>
+  </servlet-mapping>
 
   <servlet>
     <servlet-name>authenticate</servlet-name>

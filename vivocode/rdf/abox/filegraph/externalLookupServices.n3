@@ -1,0 +1,18 @@
+# $This file is distributed under the terms of the license in /doc/license.txt$ 
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix display: <http://vitro.mannlib.cornell.edu/ontologies/display/1.1#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix core: <http://vivoweb.org/ontology/core#> .
+@prefix vivoweb: <http://vivoweb.org/ontology#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix earthcollab: <http://vivo.earthcollab.edu/individual/> . 
+
+
+earthcollab:solrLookup a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup>;
+a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService>;
+rdfs:label "External Solr Lookup" .
+
+
+
