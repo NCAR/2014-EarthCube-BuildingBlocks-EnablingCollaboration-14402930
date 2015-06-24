@@ -40,6 +40,14 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 		//Enable URI to be created for this object, because linking to an external
 		//object that may or may not already exist within the system
 		editConfig.addNewResource("objectVar", null);
+		editConfig.addNewResource("endpointURI", null);
+
+		//Additional fields
+		editConfig.addFields(getAdditionalFieldsOnForm());
+		
+		//Additional literals on form
+		editConfig.addLiteralsOnForm(getAdditionalLiteralsOnForm());
+		
 				
 		//Overriding template
 		setTemplate(editConfig);
@@ -66,7 +74,12 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 	//TODO: Check what about the following may need to be changed in case geography label changes
 	 private List<String> addN3Required() {
     	List<String> n3ForEdit = new ArrayList<String>();
-    
+    	//Expect this information to be present but 
+    	n3ForEdit.add("?objectVar <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://vivoweb.org/ontology/core#ExternalEntity> . ");
+    	n3ForEdit.add("?objectVar <http://vivoweb.org/ontology/core#externalServiceDefinition> ?endpointURI. ");
+    	n3ForEdit.add("?endpointURI <http://vivoweb.org/ontology/core#externalURL>  ?endpointURL . ");
+    	n3ForEdit.add("?endpointURI <http://www.w3.org/2000/01/rdf-schema#label>  ?endpointLabel . ");
+
     	return n3ForEdit;
     }
 	 
@@ -77,7 +90,29 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 		 return n3ForEdit;
 	 }
 	
+	 
+	 private List<String> getAdditionalLiteralsOnForm() {
+	    	List<String> literalsOnForm = new ArrayList<String>();
+	    	literalsOnForm.add("endpointURL");
+	    	literalsOnForm.add("endpointLabel");
+	    	return literalsOnForm;
+	 }
+	 
+	 //Not sure what existing URIs can be returned
+	 private List<String> getAdditionalURIsOnForm() {
+		 List<String> urisOnForm = new ArrayList<String>();
+		
+		 return urisOnForm;
+	 }
 	
+	 
+	 private List<FieldVTwo> getAdditionalFieldsOnForm() {
+		 List<FieldVTwo> fields = new ArrayList<FieldVTwo>();
+		 fields.add(new FieldVTwo().setName("endpointURL"));
+		 fields.add(new FieldVTwo().setName("endpointLabel"));
+
+		 return fields;
+	 }
 	
 	
 	

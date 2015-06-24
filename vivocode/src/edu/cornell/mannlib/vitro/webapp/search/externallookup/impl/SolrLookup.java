@@ -155,6 +155,12 @@ public class SolrLookup implements ExternalLookupService {
          JSONObject additionalInfo = new JSONObject();
          additionalInfo.put("mostSpecificTypes",mstObjValues);
          lr.setAdditionalInfo(additionalInfo);
+         //Endpoint info, hardcoded here but would expect to retrieve this from a central lookup
+         JSONObject endpointInfo = new JSONObject();
+         endpointInfo.put("URL","http://climate-dev.library.cornell.edu/vivo");
+         endpointInfo.put("label","NYCCSC Clearinghouse");
+         lr.setEndpointInfo(endpointInfo);
+         
 		return lr;
 	}
 	
