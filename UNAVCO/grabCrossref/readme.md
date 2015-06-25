@@ -27,3 +27,11 @@ Also set your api url and namespace. For most installations, you will just have 
 
 ###Run the script...
 ...and hope nothing explodes.
+
+##Reference material
+https://wiki.duraspace.org/display/VIVO/The+SPARQL+Query+API
+
+https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md 
+http://search.crossref.org/help/api
+
+http://rdflib.readthedocs.org/en/latest/
