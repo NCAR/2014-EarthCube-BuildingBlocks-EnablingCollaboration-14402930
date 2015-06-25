@@ -14,6 +14,8 @@ Doug Ertz | ertz@unavco.org | Project Manager III | IT
 
 The grabCrossref will attempt to lookup publication information given a list of DOIs. It utilizes the Crossref api to grab publication metadata in JSON format. It parses the metadata and formats it into VIVO-friendly RDF. Along the way, the script tries to match objects with those that already exist in your VIVO installation using VIVO's query API. This implementation is very crude at this point, and I take no responsibility for any disasters that this code will bring upon your VIVO or your sanity. 
 
+Code snippets were used from Justin Littman's orcid2vivo script: https://github.com/gwu-libraries/orcid2vivo
+
 ##Using the script
 
 ###Set DOIs to look up 
@@ -24,4 +26,4 @@ Edit api_fx.py and add the username and password of an authorized VIVO user. The
 Also set your api url and namespace. For most installations, you will just have to change the domain at the front of the address.
 
 ###Run the script...
-...and hope nothing explodes. 
+...and hope nothing explodes.
