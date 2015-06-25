@@ -4,7 +4,6 @@ $(document).ready(function(){
     //Shortcut, usually utilize an object
 	getExternalInfo();
 	function getExternalInfo() {
-		alert("boo");
 		
 		 $.each($('ul.external-property-list'), function() {
 			 var externalServiceURL = $(this).attr("externalServiceURL");

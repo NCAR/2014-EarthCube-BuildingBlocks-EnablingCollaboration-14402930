@@ -44,7 +44,25 @@ var Solr_handler = {
 			for(i = 0; i < len; i++) {
 				Solr_handler.updateLabelForDisplay(results[i]);
 			}
-		}
+		},
+		 //Autocomplete selection may have different actions, so including as a separate function
+	    //that can then be overridden
+	    setAutocompleteSelectionValues:function(selectedObj, ui) {
+	    	if ( $(selectedObj).attr('acGroupName') == customForm.typeSelector.attr('acGroupName') ) {
+	            customForm.typeSelector.val(ui.item.msType);
+	        }
+	    	//Get endpoint info and label
+	    	var endpointInfo = ui.item["endpointInfo"];
+	    	if((endpointInfo != null) && (typeof endpointInfo != undefined)
+	    			&& ("URL" in endpointInfo) 
+	    		&& ("label" in endpointInfo)) {
+	    		var endpointURL = endpointInfo["URL"];
+	    		var endpointLabel = endpointInfo["label"];
+	    		$("input#endpointURL").val(endpointURL);
+	    		 $("input#endpointLabel").val(endpointLabel);
+
+	    	}
+	    }
 };
 
 

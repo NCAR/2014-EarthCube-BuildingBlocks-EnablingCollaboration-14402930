@@ -56,6 +56,14 @@
     <#if rangeOptionsExist  = true >
         <form class="customForm" action = "${submitUrl}">
             <input type="hidden" name="editKey" id="editKey" value="${editKey}" role="input" />
+             <!--Hidden input for string version of identifier, string version of type, type URI-->
+                <input type="hidden" id="objectIdentifier" name="objectIdentifier" value="" />
+                <input type="hidden" id="objectTypeString" name="objectTypeString" value="" />
+                <input type="hidden" id="objectTypeURI" name="objectTypeURI" value="" />
+                <input type="hidden" id="additionalObjectInfo" name="additionalObjectInfo" value="" />
+                <input type="hidden" id="endpointURL" name="endpointURL" value="" />
+				<input type="hidden" id="endpointLabel" name="endpointLabel" value="" />
+				<input type="hidden" id="rawLabel" name="rawLabel" value="" />
             <#if editConfiguration.propertyPublicDescription?has_content>
                 <p>${editConfiguration.propertyPublicDescription}</p>
              </#if>     
@@ -74,12 +82,7 @@
                     <a href="#" class="changeSelection" id="changeSelection">${i18n().change_selection})</a>
                 </p>
                 <input class="acUriReceiver" type="hidden" id="objectVar" name="objectVar" value="${selectedObjectUri}" />
-                <!--Hidden input for string version of identifier, string version of type, type URI-->
-                <input type="hidden" id="objectIdentifier" name="objectIdentifier" value="" />
-                <input type="hidden" id="objectTypeString" name="objectTypeString" value="" />
-                <input type="hidden" id="objectTypeURI" name="objectTypeURI" value="" />
-                <input type="hidden" id="additionalObjectInfo" name="additionalObjectInfo" value="" />
-				<input type="hidden" id="rawLabel" name="rawLabel" value="" />
+               
                 
 			</div>
 

@@ -344,11 +344,20 @@ var customForm = {
             select: function(event, ui) {
             	//Changed this to pass in the entire item as additional item values may be needed
                 customForm.showAutocompleteSelection(ui.item, $(selectedObj));
+                /*
                 if ( $(selectedObj).attr('acGroupName') == customForm.typeSelector.attr('acGroupName') ) {
                     customForm.typeSelector.val(ui.item.msType);
-                }
+                }*/
+                customForm.setAutocompleteSelectionValues(selectedObj, ui);
             }
         });
+    },
+    //Autocomplete selection may have different actions, so including as a separate function
+    //that can then be overridden
+    setAutocompleteSelectionValues:function(selectedObj, ui) {
+    	if ( $(selectedObj).attr('acGroupName') == customForm.typeSelector.attr('acGroupName') ) {
+            customForm.typeSelector.val(ui.item.msType);
+        }
     },
     //Default processing is empty but this can be overridden
     updateLabelsForDisplay:function(filteredResults) {

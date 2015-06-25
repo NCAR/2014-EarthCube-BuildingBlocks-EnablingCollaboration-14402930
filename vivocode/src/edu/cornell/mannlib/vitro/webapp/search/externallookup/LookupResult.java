@@ -26,7 +26,7 @@ private String label = ""; //the name or string we want represented
    private String serviceName = ""; //this will useful in case we are getting results from multiple services
    private String serviceURI = "";//if we have a URI representing the service, even better
    private JSONObject additionalInfo = null; //in the case where we have additional information that needs to be passed back in any case
-
+   private JSONObject endpointInfo = null; //For a particular search result, need to include information about the endpoint from where the information can be retrieved
 	/**
 	 * @param additionalInfo
 	 *            the additionalInfo to set
@@ -115,17 +115,26 @@ private String label = ""; //the name or string we want represented
     	try {
     	 jsonObj.put("label", label);
          jsonObj.put("idString", idString);
-         jsonObj.put("idURI", idURI);
+         jsonObj.put("uri", idURI);
          jsonObj.put("typeString", typeString);
          jsonObj.put("typeURI", typeURI);
          jsonObj.put("additionalInfo", additionalInfo);
          jsonObj.put("serviceName", serviceName);
          jsonObj.put("serviceURI", serviceURI);
+         jsonObj.put("endpointInfo", endpointInfo);
     	} catch(Exception ex) {
     		log.error("Error occurred in converting values to JSON object", ex);
     	}
     	return jsonObj;
     }
+
+	public JSONObject getEndpointInfo() {
+		return endpointInfo;
+	}
+
+	public void setEndpointInfo(JSONObject endpointInfo) {
+		this.endpointInfo = endpointInfo;
+	}
 
     
 }
