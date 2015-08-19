@@ -1,4 +1,4 @@
-Edited version of the GCIS ontology for the EarthCollab project.
+Classes and properties removed from the edited version of the GCIS ontology for the EarthCollab project.
 Matt Mayernik, 8/19/2015 
 
 See https://data.globalchange.gov/gcis.owl# for the full GCIS ontology, Version 1.2
@@ -32,10 +32,7 @@ SpatialResolution
 TemporalExtents
 TemporalResolution
 TemporalUnit
-UnitType [also deleted a series of UnitTypes - unitSecond, unitMinute, unitHour, unitDay, unitWeek, unitMonth, 
-
-unitYear]
-
+UnitType [also deleted a series of UnitTypes - unitSecond, unitMinute, unitHour, unitDay, unitWeek, unitMonth, unitYear]
 
 
 DELETED OBJECT PROPERTIES
