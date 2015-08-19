@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dctype: <http://purl.org/dc/dcmitype/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix vivo: <http://vivoweb.org/ontology/core#> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix gcis: <http://data.globalchange.gov/gcis.owl#> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix vsto: <http://escience.rpi.edu/ontology/vsto/2/0/vsto.owl#> .
+@prefix ec: <EarthCollab ontology prefix> .
+
+
+vivo:Dataset a owl:Class ;
+	rdfs:label "Dataset" ;
+	rdfs:comment "Any organized collection of data or information that has a common theme. Examples include lists, tables, and databases, etc." ;
+	rdfs:subClassOf dctype:Dataset , gcis:Dataset , dcat:Dataset , vsto:Dataset .
+
+ec:Project a owl:Class ;
+	rdfs:label "Project" ;
+	rdfs:comment "A piece of planned work that is designed to achieve a particular aim." ;
+	rdfs:subClassOf gcis:Project , vivo:Project .
+
+ec:sourcePlatform a owl:ObjectProperty ;
+	rdfs:label "Source Platform" ;
+	rdfs:comment "A dataset was collected using an observational platform." ;
+	rdfs:range gcis:Platform .
+
+ec:Parameter a owl:Class;
+	rdfs:label "Parameter" ;
+	rdfs:comment "A measured physical property." ;
+	rdfs:subClassOf vsto:Parameter .
+
+ec:isMeasuredBy a owl:ObjectProperty ;
+	rdfs:label "isMeasuredBy" ;
+	rdfs:comment "A parameter is measured by an instrument." ;
+	rdfs:domain ec:Parameter ;
+	rdfs:range gcis:Instrument ;
+	rdfs:subPropertyOf vsto:isMeasuredBy .
+
