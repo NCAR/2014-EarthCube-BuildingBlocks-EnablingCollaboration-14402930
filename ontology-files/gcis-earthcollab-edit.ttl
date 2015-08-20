@@ -44,12 +44,6 @@ gcis:Platform a owl:Class ;
 	rdfs:comment "A scientific data collection entity to which other entities can be attached - particuarly instruments, sensors and other platforms." ;
 	rdfs:subClassOf prov:Entity .
 
-gcis:hasAuthor a owl:ObjectProperty ;
-	rdfs:label "Has Author" ;
-	rdfs:comment "A resource may have one or more authors." ;
-	rdfs:range gcis:Agent ;
-	rdfs:subPropertyOf prov:wasAttributedTo .
-
 gcis:relatedProject a owl:ObjectProperty ;
 	rdfs:label "Related Project" ;
 	rdfs:comment "A publication or dataset may be the result of one or more projects." ;
@@ -111,11 +105,6 @@ gcis:Table a owl:Class ;
 	rdfs:comment "A list of facts or numbers arranged in a special order, usually in rows and columns." ;
 	rdfs:subClassOf prov:Entity .
 
-gcis:Sensor a owl:Class ;
-	rdfs:label "Sensor" ;
-	rdfs:comment "Sensing is a process that results in the estimation, or calculation, of the value of a phenomenon. An entity that can follow a sensing method and thus observe some property of a feature of interest. Sensors may be physical devices, computational methods, a laboratory setup with a person following a method, or any other thing that can follow a sensing method to observe a property." ;
-	rdfs:subClassOf prov:Entity .
-
 gcis:DatasetCapture a owl:Class ;
 	rdfs:label "Dataset Capture" ;
 	rdfs:comment "An activity that captures datasets." ;
@@ -137,13 +126,6 @@ gcis:sourceDataset a owl:ObjectProperty ;
 	rdfs:comment "A figure, table, publication, etc. may be based on one or more datasets." ;
 	rdfs:range gcis:Dataset .
 
-gcis:hasSensor a owl:ObjectProperty ;
-	rdfs:label "Has Sensor" ;
-	rdfs:comment "An instrument may have one or more sensors." ;
-	rdfs:domain gcis:Instrument ;
-	rdfs:range gcis:Sensor ;
-	rdfs:subPropertyOf dcterms:hasPart .
-	
 gcis:inInstrument a owl:ObjectProperty ;
 	rdfs:label "In Instrument" ;
 	rdfs:comment "A sensor may be deployed in one or more instruments." ;
@@ -156,12 +138,6 @@ gcis:targetSensor a owl:ObjectProperty ;
 	rdfs:comment "A calibration is applied to its target sensors." ;
 	rdfs:domain gcis:Calibration ;
 	rdfs:range gcis:Sensor .
-
-gcis:subject a owl:ObjectProperty ;
-	rdfs:label "Subject" ;
-	rdfs:comment "A publication, figure, message, dataset, etc. may use one or more concepts as subject." ;
-	rdfs:range skos:Concept ;
-	rdfs:subPropertyOf dcterms:subject .
 
 gcis:hasInputDataset a owl:ObjectProperty ;
 	rdfs:label "Has Input Dataset" ;
@@ -198,11 +174,6 @@ gcis:Person a owl:Class ;
 	rdfs:comment "A human as an individual." ;
 	rdfs:subClassOf gcis:Agent , foaf:Person , prov:Person .
 
-gcis:Group a owl:Class ;
-	rdfs:label "Group" ;
-	rdfs:comment "A number of individual agents that are connected." ;
-	rdfs:subClassOf gcis:Agent , foaf:Group .
-
 gcis:Agent a owl:Class ;
 	rdfs:label "Agent" ;
 	rdfs:comment "Someone or something that bears some form of responsibility for an activity taking place, for the existence of an entity, or for another agent's activity." ;
@@ -228,13 +199,6 @@ gcis:hasURL a owl:DatatypeProperty ;
 	rdfs:comment "A resource has a URL." ;
 	rdfs:range xsd:anyURI .		
 	
-gcis:hasPublisher a owl:ObjectProperty ;
-	rdfs:label "Has Publisher" ;
-	rdfs:comment "A publication has a publisher that produced it and made it available to the public." ;
-	rdfs:domain gcis:Publication ;
-	rdfs:range gcis:Agent ;
-	rdfs:subPropertyOf prov:wasAttributedTo .
-
 gcis:used a owl:ObjectProperty ;
 	rdfs:label "Used" ;
 	rdfs:comment "An activity uses entities when the activity is being undertaken." ;
@@ -251,12 +215,6 @@ gcis:byteSize a owl:DatatypeProperty ;
 	rdfs:domain gcis:Dataset;
 	rdfs:range xsd:string .
 
-gcis:contactPoint a owl:ObjectProperty ;
-	rdfs:label "Contact Point" ;
-	rdfs:comment "The point of contact for a dataset." ;
-	rdfs:domain gcis:Dataset ;
-	rdfs:range gcis:Agent .
-
 gcis:accessURL a owl:DatatypeProperty ;
 	rdfs:label "Access URL" ;
 	rdfs:comment "Could be any kind of URL that gives access to a distribution of the dataset. E.g. landing page, download, feed URL, SPARQL endpoint. Use when your catalog does not have information on which it is or when it is definitely not a download." ;
@@ -269,18 +227,3 @@ gcis:downloadURL a owl:DatatypeProperty ;
 	rdfs:domain gcis:Dataset ;
 	rdfs:range xsd:anyURI .
 
-gcis:isAuthorOf a owl:ObjectProperty ;
-	rdfs:label "Is Author Of" ;
-	rdfs:comment "An agent can be the author of one or more publications." ;
-	owl:inverseOf gcis:hasAuthor ;
-	rdfs:domain gcis:Agent;
-	rdfs:range gcis:Publication ;
-	rdfs:subPropertyOf prov:contributed .
-
-gcis:isPublisherOf a owl:ObjectProperty ;
-	rdfs:label "Is Publisher Of" ;
-	rdfs:comment "An agent can be the publisher of one or more publications." ;
-	owl:inverseOf gcis:hasPublisher ;
-	rdfs:domain gcis:Agent;
-	rdfs:range gcis:Publication ;
-	rdfs:subPropertyOf prov:contributed .
