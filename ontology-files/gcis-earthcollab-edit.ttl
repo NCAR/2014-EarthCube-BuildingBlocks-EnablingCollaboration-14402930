@@ -169,11 +169,6 @@ gcis:Organization a owl:Class ;
 	rdfs:comment "An instititution such as an agency, a company, a society, a university, etc." ;
 	rdfs:subClassOf gcis:Agent , org:Organization , foaf:Organization , prov:Organization .
 
-gcis:Person a owl:Class ;
-	rdfs:label "Person" ;
-	rdfs:comment "A human as an individual." ;
-	rdfs:subClassOf gcis:Agent , foaf:Person , prov:Person .
-
 gcis:Agent a owl:Class ;
 	rdfs:label "Agent" ;
 	rdfs:comment "Someone or something that bears some form of responsibility for an activity taking place, for the existence of an entity, or for another agent's activity." ;
