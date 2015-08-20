@@ -33,6 +33,8 @@ TemporalExtents
 TemporalResolution
 TemporalUnit
 UnitType [also deleted a series of UnitTypes - unitSecond, unitMinute, unitHour, unitDay, unitWeek, unitMonth, unitYear]
+Group
+Sensor
 
 
 DELETED OBJECT PROPERTIES
@@ -78,6 +80,13 @@ hasTemporalExtents
 hasTemporalResolution
 hasTemporalUnit
 hasFundingAgency
+hasAuthor
+subject
+hasPublisher
+isAuthorOf
+isPublisherOf
+contactPoint
+hasSensor
 
 
 DELETED ROLES
