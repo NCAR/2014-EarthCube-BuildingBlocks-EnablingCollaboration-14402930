@@ -11,8 +11,8 @@
 @prefix gcis: <http://data.globalchange.gov/gcis.owl#> .
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix vsto: <http://escience.rpi.edu/ontology/vsto/2/0/vsto.owl#> .
+@prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix ec: <https://library.ucar.edu/earthcollab/schema/> .
-
 
 vivo:Dataset a owl:Class ;
 	rdfs:label "Dataset" ;
@@ -41,3 +41,28 @@ ec:isMeasuredBy a owl:ObjectProperty ;
 	rdfs:range gcis:Instrument ;
 	rdfs:subPropertyOf vsto:isMeasuredBy .
 
+ec:DatasetType  a    owl:Class ;
+        rdfs:label "Dataset Type"@en-US .
+
+ec:hasDatasetType
+        a owl:ObjectProperty ;
+        rdfs:domain vivo:Dataset ;
+        rdfs:label "dataset type"@en-US ;
+        rdfs:range ec:datasetType ;
+        owl:inverseOf ec:isDatasetTypeFor .
+
+ec:isDatasetTypeFor
+        a owl:ObjectProperty ;
+        rdfs:domain ec:datasetType ;
+        rdfs:label "dataset type for"@en-US ;
+        rdfs:range vivo:Dataset ;
+        owl:inverseOf ec:hasDatasetType .
+
+ec:Station a owl:Class ;
+        rdfs:label "Station"@en-US ;
+        rdfs:subClassOf obo:BFO_0000029 , wgs84:SpatialThing .
+             
+wgs84:SpatialThing a owl:Class ;
+      rdfs:label "SpatialThing"@en-US ;
+      rdfs:subClassOf owl:Thing ;
+      obo:IAO_0000115 "Anything with spatial extent, i.e. size, shape, or position.  e.g. people, places, bowling balls, as well as abstract areas like cubes."^^xsd:string .
