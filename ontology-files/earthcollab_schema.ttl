@@ -11,7 +11,7 @@
 @prefix gcis: <http://data.globalchange.gov/gcis.owl#> .
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix vsto: <http://escience.rpi.edu/ontology/vsto/2/0/vsto.owl#> .
-@prefix ec: <https://library.ucar.edu/ontology/schema/> .
+@prefix ec: <https://library.ucar.edu/earthcollab/schema/> .
 
 
 vivo:Dataset a owl:Class ;
