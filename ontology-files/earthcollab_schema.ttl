@@ -12,7 +12,7 @@
 @prefix obo: <http://purl.obolibrary.org/obo/> .
 @prefix vsto: <http://escience.rpi.edu/ontology/vsto/2/0/vsto.owl#> .
 @prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
-@prefix ec: <https://library.ucar.edu/earthcollab/schema/> .
+@prefix ec: <https://library.ucar.edu/earthcollab/schema#> .
 
 vivo:Dataset a owl:Class ;
 	rdfs:label "Dataset" ;
