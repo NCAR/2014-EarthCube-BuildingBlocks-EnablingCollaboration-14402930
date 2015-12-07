@@ -98,11 +98,19 @@ public class IndividualController extends FreemarkerHttpServlet {
 				}
 			case DEFAULT_JSON:
 				/*
-				 * If they are asking for RDF using the preferred URL, give it
+				 * If they are asking for JSON view of profile
 				 * to them.
 				 */
 				return new IndividualResponseBuilder(vreq,
 						requestInfo.getIndividual()).assembleDefaultJSONResponse();
+				
+			case DEFAULT_RDF:
+				/*
+				 * If they are asking for RDF returned from list view
+				 */
+				return new IndividualListviewRdfAssembler(vreq,
+						requestInfo.getIndividual(),
+						requestInfo.getRdfFormat()).assembleRdf();
 			default:
 				/*
 				 * Otherwise, prepare an HTML response for the requested

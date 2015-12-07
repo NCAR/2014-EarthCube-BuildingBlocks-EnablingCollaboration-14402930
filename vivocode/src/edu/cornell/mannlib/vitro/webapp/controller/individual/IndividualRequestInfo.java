@@ -16,6 +16,7 @@ public class IndividualRequestInfo {
 		NO_INDIVIDUAL, // The requested individual doesn't exist.
 		LINKED_DATA, // Requesting RDF for this individual.
 		DEFAULT_JSON, //Requesting json output for profile, version of html
+		DEFAULT_RDF, //Requesting RDF for the list view sparql queries
 		DEFAULT // Requesting HTML response for this individual.
 	}
 
@@ -46,6 +47,12 @@ public class IndividualRequestInfo {
 		
 		return new IndividualRequestInfo(Type.DEFAULT_JSON, null, individual, null);
 	}
+	
+	//the default response, but sent as RDF from list views
+	public static IndividualRequestInfo buildDefaultRDFInfo(Individual individual, ContentType rdfFormat) {
+		
+		return new IndividualRequestInfo(Type.DEFAULT_RDF, null, individual, rdfFormat);
+	}
 
 	public static IndividualRequestInfo buildDefaultInfo(Individual individual) {
 		return new IndividualRequestInfo(Type.DEFAULT, null, individual, null);
@@ -69,7 +76,7 @@ public class IndividualRequestInfo {
 		}
 
 		if (((type == Type.LINKED_DATA) || (type == Type.DEFAULT) 
-				|| (type == Type.DEFAULT_JSON))
+				|| (type == Type.DEFAULT_JSON) || (type == Type.DEFAULT_RDF)) 
 				
 				&& (individual == null)) {
 			throw new NullPointerException(

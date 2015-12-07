@@ -72,6 +72,10 @@ public class IndividualRequestAnalyzer {
 		// Check to see whether Linked Data was requested.
 		ContentType rdfFormat = checkUrlForLinkedDataRequest();
 		if (rdfFormat != null) {
+			//format parameter may be sent along but we may also ask for RDF for listviews
+			if(checkForDefaultRDF()) {
+				return IndividualRequestInfo.buildDefaultRDFInfo(individual, rdfFormat);
+			}
 			return IndividualRequestInfo.buildLinkedDataInfo(individual, rdfFormat);
 		}
 	
@@ -79,6 +83,8 @@ public class IndividualRequestAnalyzer {
 		if(checkForDefaultJSON()) {
 			return IndividualRequestInfo.buildDefaultJSONInfo(individual);
 		}
+		
+		
 		
 		// No redirect, no Linked Data; no problem.
 		return IndividualRequestInfo.buildDefaultInfo(individual);
@@ -299,6 +305,14 @@ public class IndividualRequestAnalyzer {
 	private boolean checkForDefaultJSON() {
 		String defaultJSONAction = getRequestParameter("action", "");
 		if(!defaultJSONAction.isEmpty() && defaultJSONAction.equals("defaultJSON")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean checkForDefaultRDF() {
+		String defaultJSONAction = getRequestParameter("action", "");
+		if(!defaultJSONAction.isEmpty() && defaultJSONAction.equals("defaultRDF")) {
 			return true;
 		}
 		return false;

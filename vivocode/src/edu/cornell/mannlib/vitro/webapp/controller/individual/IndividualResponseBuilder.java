@@ -182,6 +182,9 @@ ResponseValues assembleDefaultJSONResponse() throws TemplateModelException {
 		}
 	}
 
+
+
+
 	/**
 	 * Check if a "relatedSubjectUri" parameter has been supplied, and, if so,
 	 * retrieve the related individual.
