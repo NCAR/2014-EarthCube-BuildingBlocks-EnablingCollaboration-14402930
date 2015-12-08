@@ -788,7 +788,15 @@ public class ObjectPropertyStatementDaoJena extends JenaBaseDao implements Objec
 			String rangeUri, Model constructedModel) {
 		// TODO Auto-generated method stub
 		Model returnModel = ModelFactory.createDefaultModel();
-		Query selectQuery = QueryFactory.create(queryString);
+		Query selectQuery = null;
+        try {
+            selectQuery = QueryFactory.create(queryString, Syntax.syntaxARQ);
+        } catch(Throwable th){
+            log.error("Could not create SPARQL query for query string. " + th.getMessage());
+            log.error(queryString);
+            throw new RuntimeException(th);
+        }
+		//Query selectQuery = QueryFactory.create(queryString);
 		System.out.println("Select Query is " + queryString);
 		Query newConstructQuery = selectQuery.cloneQuery();
 		//Now try and set the template
