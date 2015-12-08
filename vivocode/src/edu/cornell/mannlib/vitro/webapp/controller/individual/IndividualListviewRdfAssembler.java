@@ -26,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -128,6 +129,7 @@ public class IndividualListviewRdfAssembler {
 		
 		//Get list view metadata
 		addListViewRDF(o);
+		filterByPolicy(o);
 		addDocumentMetadata(o);
 		return o;
 	}
@@ -203,6 +205,110 @@ public class IndividualListviewRdfAssembler {
 		String date = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss")
 				.format(new Date());
 		return o.createTypedLiteral(date, XSDDatatype.XSDdateTime);
+	}
+	
+	//Borrowed from IndividualRdfAssembler - filter by policy
+	/**
+	 * Remove any triples that we aren't allowed to see. Then remove any objects
+	 * that we no longer have access to.
+	 */
+	private void filterByPolicy(OntModel o) {
+		Model removeModel = removeProhibitedTriples(o);
+		
+		Set<String> notOkObjects = determineInaccessibleUris(o, removeModel);
+		removeOrphanedObjects(o, notOkObjects);
+	}
+
+	/**
+	 * Remove the triples that we aren't allowed to see.
+	 * Keep track of the triples removed in the model
+	 */
+	private Model removeProhibitedTriples(OntModel o) {
+		StmtIterator stmts = o.listStatements();
+		Model removeModel = ModelFactory.createDefaultModel();
+		while (stmts.hasNext()) {
+			Statement stmt = stmts.next();
+			String subjectUri = stmt.getSubject().getURI();
+			String predicateUri = stmt.getPredicate().getURI();
+			if (stmt.getObject().isLiteral()) {
+				String value = stmt.getObject().asLiteral().getString();
+				DataPropertyStatement dps = new DataPropertyStatementImpl(
+						subjectUri, predicateUri, value);
+				RequestedAction pdps = new PublishDataPropertyStatement(o, dps);
+				if (!PolicyHelper.isAuthorizedForActions(vreq, pdps)) {
+					log.debug("not authorized: " + pdps);
+					//stmts.remove();
+					removeModel.add(stmt);
+				}
+			} else if (stmt.getObject().isURIResource()) {
+				String objectUri = stmt.getObject().asResource().getURI();
+				RequestedAction pops = new PublishObjectPropertyStatement(o,
+						subjectUri, predicateUri, objectUri);
+				if (!PolicyHelper.isAuthorizedForActions(vreq, pops)) {
+					log.debug("not authorized: " + pops);
+					//stmts.remove();
+					removeModel.add(stmt);
+				}
+			} else {
+				log.warn("blank node: " + stmt);
+				stmts.remove(); //we will just remove blank nodes for now, should there be a need to preserve them, we can revisit this	
+			}
+		}
+		o.remove(removeModel);
+		return removeModel;
+	}
+
+	/**
+	 * Collect the URIs of all objects that are accessible through permitted
+	 * triples.
+	 */
+	private Set<String> determineInaccessibleUris(OntModel o, Model removeModel) {
+		
+		Resource i = o.getResource(individualUri);
+		Set<String> profileModelObjectUris = new HashSet<>();
+		Set<String> inAccessibleUris = new HashSet<>();
+		
+		Set<RDFNode> profileObjects = o.listObjects().toSet();
+		for(RDFNode n: profileObjects) {
+			
+			if(n.isURIResource()) {
+				profileModelObjectUris.add(((Resource)n).getURI());
+			}
+		}
+		//statements removed s p o, check if o is object of any other statement already in model
+		//to see if linked in some other way as object from other statement
+		NodeIterator it = removeModel.listObjects();
+		
+		while(it.hasNext()) {
+			RDFNode objectNode = it.next();
+			//Is this object from the statements that were removed also an object for some statement in the model after removal
+			//i.e. is there some way to get to this object even after the other statement has been removed
+			if(objectNode.isURIResource()) {
+				String objectURI = ((Resource) objectNode).getURI();
+				if(!profileModelObjectUris.contains(objectURI)) {
+					inAccessibleUris.add(objectURI);
+				}
+			}
+		}
+
+		return inAccessibleUris;
+	}
+
+	/**
+	 * Remove any statements about objects that cannot be reached through
+	 * permitted triples, i.e. removed all statements that look like inaccessibleObject ?p ?o .
+	 */
+	private void removeOrphanedObjects(OntModel o, Set<String> notOkObjects) {
+		for(String uri: notOkObjects) {
+			StmtIterator stmts = o.listStatements(ResourceFactory.createResource(uri), null, (RDFNode) null);
+			while (stmts.hasNext()) {
+				Statement stmt = stmts.next();
+				log.debug("removing orphan triple: " + stmt);
+				stmts.remove();				
+			}
+		}
+		
+	
 	}
 
 }
