@@ -10,9 +10,33 @@
 @prefix earthcollab: <http://vivo.earthcollab.edu/individual/> . 
 
 
-earthcollab:solrLookup a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup>;
+#Climate change development server
+earthcollab:climateSolrLookup a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup>;
 a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService>;
-rdfs:label "External Solr Lookup" .
+rdfs:label "NYCCSC VIVO Lookup";
+earthcollab:hasSolrAPIURL "http://climate-dev.library.cornell.edu:8080/vivosolr/collection1/select?";
+earthcollab:hasEndpointURL "http://climate-dev.library.cornell.edu/vivo";
+earthcollab:hasEndpointLabel "NYCCSC Clearinghouse" .
+
+
+#Cornell VIVO lookup
+earthcollab:cornellSolrLookup a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup>;
+a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService>;
+rdfs:label "Cornell VIVO Lookup";
+earthcollab:hasSolrAPIURL "http://vivoprod01.library.cornell.edu:8080/vivosolr/collection1/select?";
+earthcollab:hasEndpointURL "http://vivo.cornell.edu";
+earthcollab:hasEndpointLabel "VIVO Cornell" .
+
+#Test Cornell VIVO instance blade server
+earthcollab:testCornellSolrLookup a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup>;
+a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService>;
+rdfs:label "Test Cornell VIVO Lookup";
+earthcollab:hasSolrAPIURL "http://dev2.vivo.cornell.edu/vivosolr/collection1/select?";
+earthcollab:hasEndpointURL "http://dev2.vivo.cornell.edu/vivo";
+earthcollab:hasEndpointLabel "Test VIVO Cornell Blade Server" .
 
 
 
+##Names for properties - should be defined in tbox
+#earthcollab:hasSolrAPIURL rdfs:label "has solr api".
+#earthcollab:hasEndpointURL rdfs:lab

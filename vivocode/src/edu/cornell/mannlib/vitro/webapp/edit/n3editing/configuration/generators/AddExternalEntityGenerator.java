@@ -4,9 +4,15 @@ package edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 import edu.cornell.mannlib.vitro.webapp.beans.VClass;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
@@ -15,6 +21,7 @@ import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationUti
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationVTwo;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.fields.FieldVTwo;
 import edu.cornell.mannlib.vitro.webapp.modules.searchEngine.SearchEngineException;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.RDFServiceUtils;
 
 
 /**
@@ -66,10 +73,33 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 	
 	//Form specific data used here to pass back the lookups associated with this property
 	public void addFormSpecificDataForService(EditConfigurationVTwo editConfiguration, VitroRequest vreq, HttpSession session) throws SearchEngineException {
-				editConfiguration.addFormSpecificData("serviceURI", lookupServiceURI);
+			List<ServiceInfo> serviceInfo = this.getServicesInfo(vreq);
+			editConfiguration.addFormSpecificData("servicesInfo", serviceInfo);
 		
 	}
-	
+	List<ServiceInfo> getServicesInfo(VitroRequest vreq) {
+		List<ServiceInfo> servicesInfo = new ArrayList<ServiceInfo>();
+		//Execute sparql query to retrieve information about the available services
+		String queryStr = "SELECT ?serviceURI ?serviceLabel WHERE {?serviceURI a <java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService> . ?serviceURI <http://www.w3.org/2000/01/rdf-schema#label> ?serviceLabel .}";
+		ResultSet rs = RDFServiceUtils.sparqlSelectQuery(queryStr, vreq.getRDFService());
+		while(rs.hasNext()) {
+			String serviceURI = null;
+			String serviceLabel = null;
+			QuerySolution qs = rs.nextSolution();
+			if(qs.get("serviceURI") != null && qs.get("serviceURI").isURIResource()) {
+				Resource serviceURIResource = qs.getResource("serviceURI");
+				serviceURI = serviceURIResource.getURI();
+			}
+			if(qs.get("serviceLabel") != null && qs.get("serviceLabel").isLiteral()) {
+				Literal serviceLabelLiteral = qs.getLiteral("serviceLabel");
+				serviceLabel = serviceLabelLiteral.getString();
+			}
+			servicesInfo.add(new ServiceInfo(serviceURI, serviceLabel));
+		}
+		return servicesInfo;
+	}
+
+
 	//In addition to default n3 for object, add N3 for 
 	//TODO: Check what about the following may need to be changed in case geography label changes
 	 private List<String> addN3Required() {
@@ -114,6 +144,29 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 		 return fields;
 	 }
 	
+	 
+	 public class ServiceInfo {
+		 /**
+		 * @return the serviceURI
+		 */
+		public String getServiceURI() {
+			return serviceURI;
+		}
+		/**
+		 * @return the serviceLabel
+		 */
+		public String getServiceLabel() {
+			return serviceLabel;
+		}
+		public ServiceInfo(String serviceURI, String serviceLabel) {
+			super();
+			this.serviceURI = serviceURI;
+			this.serviceLabel = serviceLabel;
+		}
+		private String serviceURI;
+		 private String serviceLabel;
+		 
+	 }
 	
 	
 }

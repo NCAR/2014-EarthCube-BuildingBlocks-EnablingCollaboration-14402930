@@ -62,7 +62,7 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 			String typeParam = vreq.getParameter(PARAM_RDFTYPE);
 			String serviceURI = vreq.getParameter(SERVICE_URI);
 
-			this.initServiceNameToClass();
+		
 
 			ExternalLookupService externalLookup = getExternalLookupService(serviceURI);
 			
@@ -82,18 +82,22 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 		}
 	}
 
-	// This mapping is inline here but will be taken out elsewhere later
-	private void initServiceNameToClass() {
-		this.serviceNameToClass
-				.put("externalSolr",
-						"edu.cornell.mannlib.vitro.webapp.search.externallookup.impl.SolrLookup");
-	}
+	
 
-	private String getServiceClass(String serviceName) {
-		if (serviceNameToClass.containsKey(serviceName))
-			return serviceNameToClass.get(serviceName);
-		// Should throw error message here
+	private String getServiceClass(String serviceURI) {
+		//Get the information about this lookup based on the sercieURI, e.g. climateSolrLookup
+		//Get the specific type, i.e. the type that is NOT external lookupservice
+		//Get all the properties and then retrieve that information
+		
+		
+		
+		
 		return null;
+		//Which class to be used should be coming from rdf
+//		if (serviceNameToClass.containsKey(serviceURI))
+//			return serviceNameToClass.get(serviceURI);
+//		// Should throw error message here
+//		return null;
 	}
 
 	public ExternalLookupService getExternalLookupService(String serviceURI)

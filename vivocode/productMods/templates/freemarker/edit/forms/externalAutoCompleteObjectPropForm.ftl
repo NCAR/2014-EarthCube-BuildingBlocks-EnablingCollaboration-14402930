@@ -1,7 +1,7 @@
 <#-- $This file is distributed under the terms of the license in /doc/license.txt$ -->
 <#----Extended version of regular autocomplete form, assuming that the service URI will be sent in via generator---->
-<#-- TODO: Make this support multiple service URIs later-->
-<#assign serviceURI = editConfiguration.pageData.serviceURI />
+
+<#assign servicesInfo = editConfiguration.pageData.servicesInfo />
 <#--Assign variables from editConfig-->
 <#assign rangeOptions = editConfiguration.pageData.objectVar />
 <#-- 
@@ -66,8 +66,12 @@
 				<input type="hidden" id="rawLabel" name="rawLabel" value="" />
             <#if editConfiguration.propertyPublicDescription?has_content>
                 <p>${editConfiguration.propertyPublicDescription}</p>
-             </#if>     
+             </#if>   
              
+            <#-- Input to select which lookup user wants to employ -->  
+             <#list servicesInfo as serviceInfo>
+             	<input type="radio" name="serviceURI" id="serviceURI" value="serviceInfo.serviceURI">${serviceInfo.serviceLabel}
+             </#list>
             <#---This section should become autocomplete instead--> 
             <p>
 				<label for="object"> ${propertyNameForDisplay?capitalize} ${i18n().name_capitalized}<span class='requiredHint'> *</span></label>
@@ -119,7 +123,8 @@
 <#--Passing in object types only if there are any types returned, otherwise
 the parameter should not be passed at all to the search.
 Also multiple types parameter set to true only if more than one type returned-->
-    <script type="text/javascript">	
+    <script type="text/javascript">
+    //loop through array and create Javascript array of servic
     var customFormData  = {
         acUrl: '${urls.base}/externalautocomplete?',//original code showed tokenize=true but that is the default being employed
         <#if objectTypesExist = true>
@@ -135,8 +140,7 @@ Also multiple types parameter set to true only if more than one type returned-->
         sparqlQueryUrl: '${sparqlQueryUrl}',
         acFilterForIndividuals: ${acFilterForIndividuals},
         defaultTypeName: '${propertyNameForDisplay}', // used in repair mode to generate button text
-        baseHref: '${urls.base}/individual?uri=',
-        serviceURI: '${serviceURI}'
+        baseHref: '${urls.base}/individual?uri='
     };
     var i18nStrings = {
         selectAnExisting: '${i18n().select_an_existing}',

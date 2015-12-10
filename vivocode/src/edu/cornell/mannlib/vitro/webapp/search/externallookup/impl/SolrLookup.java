@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +32,39 @@ import edu.cornell.mannlib.vitro.webapp.search.externallookup.LookupResult;
 public class SolrLookup implements ExternalLookupService {
 	private static final Log log = LogFactory.getLog(SolrLookup.class);
 
-	private String solrAPI = "http://climate-dev.library.cornell.edu:8080/vivosolr/collection1/select?";
+	//private String solrAPI = "http://climate-dev.library.cornell.edu:8080/vivosolr/collection1/select?";
+	private String solrAPI = null;
+	//The Solr instance corresponds to an actual 
+	private String endpointURL = null;
+	private String endpointLabel = null;
+	private String endpointURLKey = "endpointURL"; //really ACCESS URL - i.e. where to actually get the information on the individual, the VIVO URL
+	private String endpointLabelKey = "endpointLabel";
+	private String solrAPIKey = "solrAPI";
 	private String jsonFormatParameter = "wt=json";
+	
+	//initialize with URL
+	//There may be a better way to do this - will need to review
+	public void initializeLookup(HashMap<String, String> inputParameters) throws Exception {
+		//Check for solrAPI
+		if(inputParameters.containsKey(solrAPIKey)) {
+			this.solrAPI = inputParameters.get(solrAPIKey);
+		} else {
+			log.error("Solr lookup cannot be initialized as no Solr API has been passed");
+			throw new Exception("Solr lookup cannot be initialized as no Solr API has been passed");
+		}
+		
+		if(inputParameters.containsKey(endpointURLKey)) {
+			this.endpointURL = inputParameters.get(endpointURLKey);
+			log.debug("Endpoint URL is " + this.endpointURL);
+
+		}
+		
+		if(inputParameters.containsKey(endpointLabelKey)) {
+			this.endpointLabel = inputParameters.get(endpointLabelKey);
+			log.debug("Endpoint Label is " + this.endpointLabel);
+		}
+	}
+	
 	
 	// Returns actual results
 	public List<LookupResult> processResults(String term) throws Exception {
@@ -157,8 +189,8 @@ public class SolrLookup implements ExternalLookupService {
          lr.setAdditionalInfo(additionalInfo);
          //Endpoint info, hardcoded here but would expect to retrieve this from a central lookup
          JSONObject endpointInfo = new JSONObject();
-         endpointInfo.put("URL","http://climate-dev.library.cornell.edu/vivo");
-         endpointInfo.put("label","NYCCSC Clearinghouse");
+         endpointInfo.put("URL",this.endpointURL);
+         endpointInfo.put("label",this.endpointURLKey);
          lr.setEndpointInfo(endpointInfo);
          
 		return lr;
