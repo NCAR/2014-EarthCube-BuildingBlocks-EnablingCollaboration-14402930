@@ -69,8 +69,14 @@
              </#if>   
              
             <#-- Input to select which lookup user wants to employ -->  
+            <#assign firstServiceURIEncountered = false/>
+            
              <#list servicesInfo as serviceInfo>
-             	<input type="radio" name="serviceURI" id="serviceURI" value="serviceInfo.serviceURI">${serviceInfo.serviceLabel}
+             	
+             	<input type="radio" name="serviceURI" id="serviceURI" value="${serviceInfo.serviceURI}"
+             	<#if !firstServiceURIEncountered>
+             		<#assign firstServiceURIEncountered = true>checked="checked"
+             	</#if>>${serviceInfo.serviceLabel}
              </#list>
             <#---This section should become autocomplete instead--> 
             <p>

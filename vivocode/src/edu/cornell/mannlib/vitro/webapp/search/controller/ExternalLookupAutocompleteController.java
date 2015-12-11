@@ -4,6 +4,7 @@ package edu.cornell.mannlib.vitro.webapp.search.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,12 +15,18 @@ import net.sf.json.JSONArray;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+
 import edu.cornell.mannlib.vitro.webapp.auth.permissions.SimplePermission;
 import edu.cornell.mannlib.vitro.webapp.auth.requestedAction.AuthorizationRequest;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
 import edu.cornell.mannlib.vitro.webapp.controller.ajax.VitroAjaxController;
+import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.RDFServiceUtils;
 import edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService;
 import edu.cornell.mannlib.vitro.webapp.search.externallookup.LookupResult;
+import edu.cornell.mannlib.vitro.webapp.utils.dataGetter.DataGetterUtils;
 
 /**
  * ExternalAutoCompleteController generates autocomplete content via the search
@@ -64,7 +71,7 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 
 		
 
-			ExternalLookupService externalLookup = getExternalLookupService(serviceURI);
+			ExternalLookupService externalLookup = getExternalLookupService(serviceURI, vreq);
 			
 			List<LookupResult> results = externalLookup.processResults(qtxt);
 			//We are keeping the json object library consistent -> net.sf.json
@@ -84,25 +91,59 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 
 	
 
-	private String getServiceClass(String serviceURI) {
+	private HashMap<String, String> getServiceInformation(String serviceURI, VitroRequest vreq) {
 		//Get the information about this lookup based on the sercieURI, e.g. climateSolrLookup
 		//Get the specific type, i.e. the type that is NOT external lookupservice
 		//Get all the properties and then retrieve that information
+		String externalLookupServiceType = "java:edu.cornell.mannlib.vitro.webapp.search.externallookup.ExternalLookupService";
+		String queryStr = "SELECT ?type ?p ?o WHERE { <" + serviceURI + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type . \n" +
+		"<" + serviceURI + "> ?p ?o . }";
 		
-		
-		
-		
-		return null;
-		//Which class to be used should be coming from rdf
-//		if (serviceNameToClass.containsKey(serviceURI))
-//			return serviceNameToClass.get(serviceURI);
-//		// Should throw error message here
-//		return null;
+		HashMap<String, String> serviceInfo = new HashMap<String, String>();
+		String serviceClass = null;
+		ResultSet rs = RDFServiceUtils.sparqlSelectQuery(queryStr, vreq.getRDFService());
+		while(rs.hasNext()) {
+			QuerySolution qs = rs.nextSolution();
+			if(qs.get("type") != null && qs.get("type").isURIResource() && qs.getResource("type").getURI() != null) {
+				String typeURI = qs.getResource("type").getURI();
+				//We could also filter this out in the query itself
+				if(!typeURI.equals(externalLookupServiceType)) {
+					serviceClass = typeURI;
+					serviceInfo.put("serviceClass", serviceClass);
+				}
+			}			
+			String propertyURI = qs.getResource("p").getURI();
+			//No need to recapture type - also we are only storing one value per property URI here so no need to retrieve this info if we already have it
+			//This would change if we instead decided to store all possible object properties for a given property
+			if(!propertyURI.equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type") &&
+					!serviceInfo.containsKey(propertyURI)) {
+				RDFNode varNode = qs.get("o");
+				String value = null;
+				if(varNode.isLiteral()) {
+					value = varNode.asLiteral().getString();
+				} else {
+					value = varNode.asResource().getURI();
+				}
+				//This doesn't account for multiple values for the same property URI so this should really be a List of Strings
+				serviceInfo.put(propertyURI, value);
+			}
+		}
+	
+		return serviceInfo;
+	
 	}
 
-	public ExternalLookupService getExternalLookupService(String serviceURI)
+	public ExternalLookupService getExternalLookupService(String serviceURI, VitroRequest vreq)
 			throws Exception {
-		String serviceClassName = this.getServiceClass(serviceURI);
+		HashMap<String, String> serviceInfo = this.getServiceInformation(serviceURI, vreq);
+		
+		if(!serviceInfo.containsKey("serviceClass")) {
+			log.error("No service class returned for service URI " + serviceURI);
+			throw new Exception("No service class returned for service URI " + serviceURI);
+		}
+		String serviceClassURI = serviceInfo.get("serviceClass");
+		//URI is of form java:.., need to get portion after java:...
+		String serviceClassName = DataGetterUtils.getClassNameFromUri(serviceClassURI);
 		if (serviceClassName != null) {
 			ExternalLookupService externalServiceClass = null;
 
@@ -123,6 +164,9 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 				log.error("could not find Lookup Class for " + serviceClassName);
 				return null;
 			}
+			
+			//Initialize this class
+			externalServiceClass.initializeLookup(serviceInfo);
 			return externalServiceClass;
 
 		}

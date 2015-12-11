@@ -23,6 +23,8 @@ function selectCustomFormHandler(serviceURI) {
 	if(customFormHandler && $.isFunction(customFormHandler.getLookup)) {
 		//Not sure if this will work with same code and different lookup?
 		var customForm = customFormHandler.getLookup();
+		//set the serviceURI
+		customForm["serviceURI"] = serviceURI;
 		customForm.onLoad();
 	} 
 }
@@ -35,6 +37,8 @@ $(document).ready(function() {
 		//Select a different custom form handler if required
 		serviceURI = $(this).val();
 		selectCustomFormHandler(serviceURI);
+		//this problematic given the other events that could be bound?
+		//will have to try this out and see
 	})
 	
 });

@@ -37,9 +37,9 @@ public class SolrLookup implements ExternalLookupService {
 	//The Solr instance corresponds to an actual 
 	private String endpointURL = null;
 	private String endpointLabel = null;
-	private String endpointURLKey = "endpointURL"; //really ACCESS URL - i.e. where to actually get the information on the individual, the VIVO URL
-	private String endpointLabelKey = "endpointLabel";
-	private String solrAPIKey = "solrAPI";
+	private String endpointURLKey = "http://vivo.earthcollab.edu/individual/hasEndpointURL"; //really ACCESS URL - i.e. where to actually get the information on the individual, the VIVO URL
+	private String endpointLabelKey = "http://vivo.earthcollab.edu/individual/hasEndpointLabel";
+	private String solrAPIKey = "http://vivo.earthcollab.edu/individual/hasSolrAPIURL";
 	private String jsonFormatParameter = "wt=json";
 	
 	//initialize with URL
