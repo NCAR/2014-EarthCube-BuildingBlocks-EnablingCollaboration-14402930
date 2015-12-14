@@ -100,6 +100,8 @@ public class ExternalLookupAutocompleteController extends VitroAjaxController {
 		"<" + serviceURI + "> ?p ?o . }";
 		
 		HashMap<String, String> serviceInfo = new HashMap<String, String>();
+		//URI defining the lookup service itself - RDF
+		serviceInfo.put("serviceURI", serviceURI);
 		String serviceClass = null;
 		ResultSet rs = RDFServiceUtils.sparqlSelectQuery(queryStr, vreq.getRDFService());
 		while(rs.hasNext()) {

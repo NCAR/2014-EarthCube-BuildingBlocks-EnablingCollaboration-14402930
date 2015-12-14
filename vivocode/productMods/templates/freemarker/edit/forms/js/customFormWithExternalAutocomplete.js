@@ -31,9 +31,9 @@ function selectCustomFormHandler(serviceURI) {
 
 $(document).ready(function() {
 	//some default value
-	var serviceURI =$("#serviceURI").val();
+	var serviceURI =$("input[name='serviceURI']:checked").val();
 	selectCustomFormHandler(serviceURI);
-	$("#serviceURI").change(function() {
+	$("input[name='serviceURI']").change(function() {
 		//Select a different custom form handler if required
 		serviceURI = $(this).val();
 		selectCustomFormHandler(serviceURI);

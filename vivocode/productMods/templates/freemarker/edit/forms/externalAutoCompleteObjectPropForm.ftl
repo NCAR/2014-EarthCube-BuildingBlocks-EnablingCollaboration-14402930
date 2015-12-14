@@ -73,7 +73,7 @@
             
              <#list servicesInfo as serviceInfo>
              	
-             	<input type="radio" name="serviceURI" id="serviceURI" value="${serviceInfo.serviceURI}"
+             	<input type="radio" name="serviceURI"  value="${serviceInfo.serviceURI}"
              	<#if !firstServiceURIEncountered>
              		<#assign firstServiceURIEncountered = true>checked="checked"
              	</#if>>${serviceInfo.serviceLabel}

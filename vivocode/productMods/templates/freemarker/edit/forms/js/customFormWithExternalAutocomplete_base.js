@@ -763,6 +763,11 @@ var customForm = {
         var $acDiv = this.acSelections[$(selectedObj).attr('acGroupName')];
         $acDiv.find("input").val(customForm.blankSentinel);
 	}
+	//,
+	//Considered adding UNBIND event listener, but may NOT need it
+	//because getLookup will return an EXTENSION of the object itself, i.e. customForm with the appropriate handler
+	//Since it is the same object being passed around, we are overriding the same properties BUT
+	//what happens if an object has different methods - do we then just keep incorporating those properties
 	
 };
 

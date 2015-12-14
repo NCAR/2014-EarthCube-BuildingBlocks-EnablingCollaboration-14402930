@@ -34,12 +34,16 @@ public class SolrLookup implements ExternalLookupService {
 
 	//private String solrAPI = "http://climate-dev.library.cornell.edu:8080/vivosolr/collection1/select?";
 	private String solrAPI = null;
+	private String serviceURI = null;
+	private String serviceLabel = null;
 	//The Solr instance corresponds to an actual 
 	private String endpointURL = null;
 	private String endpointLabel = null;
 	private String endpointURLKey = "http://vivo.earthcollab.edu/individual/hasEndpointURL"; //really ACCESS URL - i.e. where to actually get the information on the individual, the VIVO URL
 	private String endpointLabelKey = "http://vivo.earthcollab.edu/individual/hasEndpointLabel";
 	private String solrAPIKey = "http://vivo.earthcollab.edu/individual/hasSolrAPIURL";
+	private String serviceURIKey = "serviceURI";
+	private String serviceLabelKey = "http://www.w3.org/2000/01/rdf-schema#label";
 	private String jsonFormatParameter = "wt=json";
 	
 	//initialize with URL
@@ -62,6 +66,16 @@ public class SolrLookup implements ExternalLookupService {
 		if(inputParameters.containsKey(endpointLabelKey)) {
 			this.endpointLabel = inputParameters.get(endpointLabelKey);
 			log.debug("Endpoint Label is " + this.endpointLabel);
+		}
+		
+		if(inputParameters.containsKey(serviceURIKey)) {
+			this.serviceURI = inputParameters.get(serviceURIKey);
+			log.debug("Service URI is " + this.serviceURI);
+		}
+		
+		if(inputParameters.containsKey(serviceLabelKey)) {
+			this.serviceLabel = inputParameters.get(serviceLabelKey);
+			log.debug("Service Label is " + this.serviceLabel);
 		}
 	}
 	
@@ -183,14 +197,14 @@ public class SolrLookup implements ExternalLookupService {
          if(mstObjURIs.size() > 0) {
         	 typeURI = mstObjURIs.get(0);
          }
-         lr = new LookupResult(name, null, typeURI, null,uri, "vivosolr", "vivosolruri");
+         lr = new LookupResult(name, null, typeURI, null,uri, this.serviceLabel, this.serviceURI);
          JSONObject additionalInfo = new JSONObject();
          additionalInfo.put("mostSpecificTypes",mstObjValues);
          lr.setAdditionalInfo(additionalInfo);
          //Endpoint info, hardcoded here but would expect to retrieve this from a central lookup
          JSONObject endpointInfo = new JSONObject();
          endpointInfo.put("URL",this.endpointURL);
-         endpointInfo.put("label",this.endpointURLKey);
+         endpointInfo.put("label",this.endpointLabel);
          lr.setEndpointInfo(endpointInfo);
          
 		return lr;
