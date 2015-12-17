@@ -163,6 +163,8 @@ public class ExternalEntityDataGetter extends DataGetterBase implements DataGett
         "  OPTIONAL{ ?dataGetterURI "+saveToVarPropertyURI+" ?saveToVar } \n " +
         "}";      
 
+    //For now, combining data getter-specific info, e.g. which properties do you want to retrieve
+    //with information about the external uri and where to access the information
    
     @Override
     public Map<String, Object> getData(Map<String, Object> pageData) { 
@@ -171,46 +173,40 @@ public class ExternalEntityDataGetter extends DataGetterBase implements DataGett
     	
     	String boundQueryText = bindParameters(queryText, merged);
     	ResultSet rs = doQueryOnRDFService(boundQueryText);
+    	List<ExternalURIInformation> externalURIInfo = new ArrayList<ExternalURIInformation>();
     	
     	//Query results should include the serviceURL and service name
     	//?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
     	while(rs.hasNext()) {
     		QuerySolution qs = rs.nextSolution();
-    		
     		String externalURI = toCell(qs.get("externalURI"));
-    		String externalServiceURI = toCell(qs.get("externalServiceURI"));
-    		String externalServiceName = toCell(qs.get("externalServiceName"));
-    		String externalServiceURL = toCell(qs.get("externalServiceURL"));
     		
-    		HashMap<String, String> externalServiceInfo = new HashMap<String, String>();
-    		//Put in the property information
-        	//TODO: Use saveToVar instead of the above
-    		externalServiceInfo.put("propertyURI", this.selectedPropertyURI);
-    		if(StringUtils.isNotEmpty(this.selectedPropertyDomainURI)) {
-    			externalServiceInfo.put("propertyDomainURI", this.selectedPropertyDomainURI);
-    		}
-    		if(StringUtils.isNotEmpty(this.selectedPropertyRangeURI)) {
-    			externalServiceInfo.put("propertyRangeURI", this.selectedPropertyRangeURI);
-    		}
+    		
     		//What if there are multiple external URIs or results
     		if(StringUtils.isNotEmpty(externalURI)) {
-    			externalServiceInfo.put("externalURI", externalURI);
-    			if(StringUtils.isNotEmpty(externalServiceURI)) {
-    				externalServiceInfo.put("externalServiceURI", externalServiceURI);
-    			}
-    			if(StringUtils.isNotEmpty(externalServiceName)) {
-    				externalServiceInfo.put("externalServiceName", externalServiceName);
-    			}
+    			String externalServiceURI = toCell(qs.get("externalServiceURI"));
+        		String externalServiceName = toCell(qs.get("externalServiceName"));
+        		String externalServiceURL = toCell(qs.get("externalServiceURL"));
+        		
+        		ExternalURIInformation eInfo = new ExternalURIInformation(externalURI, externalServiceURI, externalServiceName, externalServiceURL);
+        		
+        		//Put in the property information
+            	//TODO: Use saveToVar instead of the above
+        		eInfo.setPropertyURI(this.selectedPropertyURI);
+        		if(StringUtils.isNotEmpty(this.selectedPropertyDomainURI)) {
+        			eInfo.setPropertyDomainURI(this.selectedPropertyDomainURI);
+        			
+        		}
+        		if(StringUtils.isNotEmpty(this.selectedPropertyRangeURI)) {
+        			eInfo.setPropertyRangeURI(this.selectedPropertyRangeURI);
+        		}
+        		externalURIInfo.add(eInfo);
     			
-    			if(StringUtils.isNotEmpty(externalServiceURL)) {
-    				externalServiceInfo.put("externalServiceURL", externalServiceURL);
-    			}
-    			templateData.put("externalURIInfo", externalServiceInfo);
     		}
     	}
     	
     	
-    	
+    	templateData.put("externalURIInfo", externalURIInfo);
     	
     	return templateData; 
     }
@@ -336,6 +332,102 @@ public class ExternalEntityDataGetter extends DataGetterBase implements DataGett
         rmap.put("bodyTemplate", defaultTemplate);
         
         return rmap;        
+	}
+	
+	
+	public class ExternalURIInformation {
+		
+
+		private String externalURI;
+		private String externalServiceURI;
+		private String externalServiceName;
+		private String externalServiceURL;
+		private String propertyURI;
+		private String propertyDomainURI;
+		private String propertyRangeURI;
+		
+		public ExternalURIInformation(String externalURI,
+				String externalServiceURI, String externalServiceName,
+				String externalServiceURL) {
+			super();
+			this.externalURI = externalURI;
+			this.externalServiceURI = externalServiceURI;
+			this.externalServiceName = externalServiceName;
+			this.externalServiceURL = externalServiceURL;
+		}
+		
+		/**
+		 * @return the externalURI
+		 */
+		public String getExternalURI() {
+			return externalURI;
+		}
+
+		/**
+		 * @return the externalServiceURI
+		 */
+		public String getExternalServiceURI() {
+			return externalServiceURI;
+		}
+
+		/**
+		 * @return the externalServiceName
+		 */
+		public String getExternalServiceName() {
+			return externalServiceName;
+		}
+
+		/**
+		 * @return the externalServiceURL
+		 */
+		public String getExternalServiceURL() {
+			return externalServiceURL;
+		}
+		
+		//Property-specific information
+		/**
+		 * @return the propertyURI
+		 */
+		public String getPropertyURI() {
+			return propertyURI;
+		}
+
+		/**
+		 * @param propertyURI the propertyURI to set
+		 */
+		public void setPropertyURI(String propertyURI) {
+			this.propertyURI = propertyURI;
+		}
+
+		/**
+		 * @return the propertyDomainURI
+		 */
+		public String getPropertyDomainURI() {
+			return propertyDomainURI;
+		}
+
+		/**
+		 * @param propertyDomainURI the propertyDomainURI to set
+		 */
+		public void setPropertyDomainURI(String propertyDomainURI) {
+			this.propertyDomainURI = propertyDomainURI;
+		}
+
+		/**
+		 * @return the propertyRangeURI
+		 */
+		public String getPropertyRangeURI() {
+			return propertyRangeURI;
+		}
+
+		/**
+		 * @param propertyRangeURI the propertyRangeURI to set
+		 */
+		public void setPropertyRangeURI(String propertyRangeURI) {
+			this.propertyRangeURI = propertyRangeURI;
+		}
+		
+		
 	}
 	
 }

@@ -23,27 +23,30 @@
 	<#return returnInfo>
 </#function>
 
+<#--externalURIInfo is array of POJOS-->
 <#macro outputExternalURIInfo externalURIInfo rangeClass property>
 	<#--Hard coding but this should come from template-->
 	<#if rangeClass == "Authorship" && (property.domainUri)?? && property.domainUri?contains("Person")>
 		<#local label = "External " + property.name />
 		<#local serviceURL = ""/>
 		<#local externalBaseURL = ""/>
-		<#local externalURI = externalURIInfo.externalURI />
-		<#local serviceName = externalURIInfo.externalServiceName />
-		<#if externalURI?has_content && externalURIInfo.externalServiceURL?has_content>
-			<#local externalBaseURL = externalURIInfo.externalServiceURL />
-			<#local serviceURL = externalURIInfo.externalServiceURL + "/individual?uri=" + externalURI?url + "&action=defaultJSON" />
-		</#if>
-		<#if serviceName?has_content>
-			<#local label = label + " (" + serviceName + ")" />
-		</#if>
-		<li class="subclass" role="listitem">
-                <h3>${label}</h3>
-                <ul class="subclass-property-list external-property-list" externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
-                propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}">
-                    
-                </ul>
-            </li>
+		<#list externalURIInfo as externalURIInfoItem>
+			<#local externalURI = externalURIInfoItem.externalURI />
+			<#local serviceName = externalURIInfoItem.externalServiceName />
+			<#if externalURI?has_content && externalURIInfoItem.externalServiceURL?has_content>
+				<#local externalBaseURL = externalURIInfoItem.externalServiceURL />
+				<#local serviceURL = externalURIInfoItem.externalServiceURL + "/individual?uri=" + externalURI?url + "&action=defaultJSON" />
+			</#if>
+			<#if serviceName?has_content>
+				<#local label = label + " (" + serviceName + ")" />
+			</#if>
+			<li class="subclass" role="listitem">
+	                <h3>${label}</h3>
+	                <ul class="subclass-property-list external-property-list" externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
+	                propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}">
+	                    
+	                </ul>
+	            </li>
+    	</#list>
 	</#if>
 </#macro>

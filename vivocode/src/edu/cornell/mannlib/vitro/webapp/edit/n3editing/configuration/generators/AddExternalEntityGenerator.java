@@ -3,8 +3,6 @@
 package edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -14,12 +12,10 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-import edu.cornell.mannlib.vitro.webapp.beans.VClass;
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
-import edu.cornell.mannlib.vitro.webapp.dao.VitroVocabulary;
-import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationUtils;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationVTwo;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.fields.FieldVTwo;
+import edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.preprocessors.ExternalEntityLookupSubmissionPreprocessor;
 import edu.cornell.mannlib.vitro.webapp.modules.searchEngine.SearchEngineException;
 import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.RDFServiceUtils;
 
@@ -31,7 +27,6 @@ import edu.cornell.mannlib.vitro.webapp.rdfservice.impl.RDFServiceUtils;
 
 public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerator {
 	private String acObjectPropertyTemplate = "externalAutoCompleteObjectPropForm.ftl";		
-	private String lookupServiceURI = "externalSolr";
 
 	@Override
 	public EditConfigurationVTwo getEditConfiguration(VitroRequest vreq,
@@ -61,6 +56,7 @@ public class AddExternalEntityGenerator extends DefaultObjectPropertyFormGenerat
 		//pass in service URI
 		addFormSpecificDataForService(editConfig,vreq,session);
 		//Add preprocessors - whatever might exist
+		editConfig.addEditSubmissionPreprocessor(new ExternalEntityLookupSubmissionPreprocessor(editConfig));
 	
 		return editConfig;
 	}
