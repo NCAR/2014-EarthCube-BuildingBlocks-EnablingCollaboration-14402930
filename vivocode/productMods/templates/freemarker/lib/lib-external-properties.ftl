@@ -24,29 +24,45 @@
 </#function>
 
 <#--externalURIInfo is array of POJOS-->
-<#macro outputExternalURIInfo externalURIInfo rangeClass property>
-	<#--Hard coding but this should come from template-->
-	<#if rangeClass == "Authorship" && (property.domainUri)?? && property.domainUri?contains("Person")>
-		<#local label = "External " + property.name />
-		<#local serviceURL = ""/>
-		<#local externalBaseURL = ""/>
+<#macro outputExternalURIInfo externalURIInfo rangeClass property>	
 		<#list externalURIInfo as externalURIInfoItem>
-			<#local externalURI = externalURIInfoItem.externalURI />
-			<#local serviceName = externalURIInfoItem.externalServiceName />
-			<#if externalURI?has_content && externalURIInfoItem.externalServiceURL?has_content>
-				<#local externalBaseURL = externalURIInfoItem.externalServiceURL />
-				<#local serviceURL = externalURIInfoItem.externalServiceURL + "/individual?uri=" + externalURI?url + "&action=defaultJSON" />
-			</#if>
-			<#if serviceName?has_content>
-				<#local label = label + " (" + serviceName + ")" />
-			</#if>
-			<li class="subclass" role="listitem">
-	                <h3>${label}</h3>
-	                <ul class="subclass-property-list external-property-list" externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
-	                propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}">
-	                    
-	                </ul>
-	            </li>
+				<#local propertyURI = externalURIInfoItem.propertyURI />
+				<#local propertyDomainURI = externalURIInfoItem.propertyDomainURI />
+				<#local propertyRangeURI = externalURIInfoItem.propertyRangeURI />
+				
+				<#local displayExternalInfo = false />
+				<#-- If no propertyURI, domain or range URI has been specified,  don't display anything, but we could also do the opposite, depends on how this needs to be-->
+				<#if propertyURI?has_content>
+					<#if propertyDomainURI?has_content && propertyRangeURI?has_content>
+						<#if (property.domainUri)?? && property.domainUri == propertyDomainURI &&
+						(property.rangeUri)?? && property.rangeUri == propertyRangeURI>
+							<#local displayExternalInfo = true>
+						</#if>
+					<#else>
+						<#-- if no domain and range specified for external entity retrieval, get the info back -->
+						<#local displayExternalInfo = true>
+					</#if>
+				</#if>
+				<#if displayExternalInfo>
+					<#--Used to call out external properties separately, here interleaving-->
+					<#local label = "" />
+					<#local serviceURL = ""/>
+					<#local externalBaseURL = ""/>				
+					<#local externalURI = externalURIInfoItem.externalURI />
+					<#local serviceName = externalURIInfoItem.externalServiceName />
+					<#if externalURI?has_content && externalURIInfoItem.externalServiceURL?has_content>
+						<#local externalBaseURL = externalURIInfoItem.externalServiceURL />
+						<#local serviceURL = externalURIInfoItem.externalServiceURL + "/individual?uri=" + externalURI?url + "&action=defaultJSON" />
+					</#if>
+					<#if serviceName?has_content>
+						<#local label = label + " (" + serviceName + ")" />
+					</#if>
+					<li class="subclass external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
+		                propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}"
+		                sourceLabel="${label}">
+		                External Content
+			       	</li>
+	            </#if>
     	</#list>
-	</#if>
+
 </#macro>

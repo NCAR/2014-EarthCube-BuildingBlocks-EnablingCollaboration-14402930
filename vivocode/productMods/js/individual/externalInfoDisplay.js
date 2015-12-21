@@ -5,13 +5,14 @@ $(document).ready(function(){
 	getExternalInfo();
 	function getExternalInfo() {
 		
-		 $.each($('ul.external-property-list'), function() {
+		 $.each($('li.external-property-list-item'), function() {
 			 var externalServiceURL = $(this).attr("externalServiceURL");
 			 var externalURI = $(this).attr("externalURI");
 			 var propertyURI = $(this).attr("propertyURI");
 			 var domainURI = $(this).attr("domainURI");
 			 var rangeURI = $(this).attr("rangeURI");
 			 var externalBaseURL = $(this).attr("externalBaseURL");
+			 var externalSourceLabel = $(this).attr("sourceLabel");
 			 //These should be empty strings and not null/undefined when values don't exist
 			 if(externalServiceURL != null && externalServiceURL != "") {
 				 //Call ajax to get the content
@@ -22,7 +23,7 @@ $(document).ready(function(){
 				 var externalIndController = "http://localhost:8080/earthcollabvivo/externalIndividualController";
 				 
 					 $.getJSON(externalIndController, data, function(results) {
-					 parseExternalContent(results, externalURI, externalBaseURL);
+					 parseExternalContent(results, externalURI, externalBaseURL, externalSourceLabel);
 					 });
 				
 			 }
@@ -35,9 +36,10 @@ $(document).ready(function(){
 	//Hardcoding retrieval of publications but this should be based on
 	//the property, domain, and range info being set on the datagetter and set as attributes
 	//on the element
-	function parseExternalContent(results, externalURI, externalBaseURL) {
+	function parseExternalContent(results, externalURI, externalBaseURL, externalSourceLabel) {
 		//TODO: Figure out a way to execute the Freemarker template? From within JAVA?
 		var displayHTML = "";
+		//Need to also handle case where there are no subclasses
 		if("subclasses" in results) {
 			//subclasses within results
 			var subclassesArray = results.subclasses;
@@ -59,6 +61,9 @@ $(document).ready(function(){
 								var infoResourceURI = statementData.infoResource;
 								var externalPubURL = externalBaseURL + "/individual?uri=" + infoResourceURI;
 								displayHTML += "<li role='listitem'><a title='resource name' href='" + externalPubURL + "'>" + pubName + "</a></li>";
+								if(externalSourceLabel) {
+									displayHTML += externalSourceLabel ;
+								}
 							}
 						}
 						displayHTML += "</ul></li>";
@@ -66,7 +71,8 @@ $(document).ready(function(){
 				}
 			}
 		}
-		$("ul[externalURI='" + externalURI + "']").append("<li>" + displayHTML + "</li>");
+		//$("ul[externalURI='" + externalURI + "']").append("<li>" + displayHTML + "</li>");
+		$("li.external-property-list-item[externalURI='" + externalURI + "']").replaceWith(displayHTML);
 	}
  
 });
