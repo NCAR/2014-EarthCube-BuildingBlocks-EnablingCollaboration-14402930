@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -213,6 +214,7 @@ public class DataPropertyTemplateModel extends PropertyTemplateModel {
     }
     
     //Get this as RDF
+    @JsonIgnore
     public Model getStatementsAsRDF() {
     	Model rdfModel = ModelFactory.createDefaultModel();
     	for(DataPropertyStatementTemplateModel dpstm: statements) {

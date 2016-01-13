@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
@@ -152,7 +153,7 @@ public class PropertyGroupTemplateModel extends BaseTemplateModel {
     public List<PropertyTemplateModel> getProperties() {
         return properties;
     }    
-    
+  	@JsonIgnore 
     public Model getPropertiesAsRDF() {
     	Model rdfModel = ModelFactory.createDefaultModel();
     	for(PropertyTemplateModel ptm: properties) {

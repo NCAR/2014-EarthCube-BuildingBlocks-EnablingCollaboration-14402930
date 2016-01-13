@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -592,6 +593,7 @@ public class GroupedPropertyList extends BaseTemplateModel {
     }
     
     //RDF Method
+    @JsonIgnore
     public Model getAllPropertiesAsRDF() {
     	Model rdfModel = ModelFactory.createDefaultModel();   
     	for(PropertyGroupTemplateModel pgtm: groups) {

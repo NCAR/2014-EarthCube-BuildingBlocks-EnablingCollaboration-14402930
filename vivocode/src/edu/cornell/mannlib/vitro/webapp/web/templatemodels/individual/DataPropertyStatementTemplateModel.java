@@ -5,6 +5,7 @@ package edu.cornell.mannlib.vitro.webapp.web.templatemodels.individual;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.Literal;
 
 import edu.cornell.mannlib.vitro.webapp.auth.policy.PolicyHelper;
@@ -130,6 +131,7 @@ public class DataPropertyStatementTemplateModel extends PropertyStatementTemplat
     	return this.property.getURI();
     }
     
+    @JsonIgnore
     public Literal getLiteral() {
     	return this.literalValue;
     }

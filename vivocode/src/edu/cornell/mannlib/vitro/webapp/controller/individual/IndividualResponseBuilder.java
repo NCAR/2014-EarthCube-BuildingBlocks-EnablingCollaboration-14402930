@@ -4,15 +4,22 @@ package edu.cornell.mannlib.vitro.webapp.controller.individual;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 
@@ -38,6 +45,8 @@ import edu.cornell.mannlib.vitro.webapp.web.ContentType;
 import edu.cornell.mannlib.vitro.webapp.web.beanswrappers.ReadOnlyBeansWrapper;
 import edu.cornell.mannlib.vitro.webapp.web.templatemodels.individual.GroupedPropertyList;
 import edu.cornell.mannlib.vitro.webapp.web.templatemodels.individual.IndividualTemplateModel;
+import edu.cornell.mannlib.vitro.webapp.web.templatemodels.individual.PropertyGroupTemplateModel;
+import edu.cornell.mannlib.vitro.webapp.web.templatemodels.individual.PropertyTemplateModel;
 import edu.ucsf.vitro.opensocial.OpenSocialManager;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateModel;
@@ -150,7 +159,7 @@ class IndividualResponseBuilder {
 	 * Testing a method to assemble a response in JSON for the profile, i.e. NOT linked data but actual profile data
 	 * 
 	 */
-ResponseValues assembleDefaultJSONResponse() throws TemplateModelException {
+	ResponseValues assembleDefaultJSONResponse() throws TemplateModelException {
 		//Get the template response values and then utilize them
 
 		        
@@ -169,6 +178,8 @@ ResponseValues assembleDefaultJSONResponse() throws TemplateModelException {
 		IndividualTemplateModel itm = (IndividualTemplateModel) wr.unwrap((TemplateModel)body.get("individual")); 
         GroupedPropertyList gpl = itm.getPropertyList();
         returnResults.put("propertyList", gpl);
+        Map<String, Object> parsedList = parsePropertyList(gpl);
+        returnResults.put("parsedList", parsedList);
         //Convert all of body to json and return
         ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -181,6 +192,53 @@ ResponseValues assembleDefaultJSONResponse() throws TemplateModelException {
 			return rv;
 		}
 	}
+
+	//Extra processing, because we may not want just a list but multiple ways into the data
+		//Example, A HASH of property groups to a hash of property URIs and/or subclasses
+		private Map<String, Object> parsePropertyList(GroupedPropertyList gpl) {
+			HashMap<String, Object> parsedMap = new HashMap<String, Object>();
+			//This is the full property list
+			//Faux properties indicated by name of property + propertyURI
+			//and/or the word faux
+			HashMap<String, Object> propertyHash = new HashMap<String, Object>();
+			//Have a map for reference ->> see which property is a faux property and get the name value at the same time, domain, range, etc.
+			HashMap<String, HashMap<String, String>> fauxPropertyHash = new HashMap<String, HashMap<String, String>>();
+			//Also save order of property keys as retrieved from group property list
+			List<String> propertyKeys = new ArrayList<String>();
+			List<PropertyGroupTemplateModel> pgs = gpl.getAll();
+			//In the future, we may want a hash by property group as well
+			for(PropertyGroupTemplateModel pg: pgs) {
+				List<PropertyTemplateModel> props = pg.getProperties();
+				for(PropertyTemplateModel prop: props) {
+					//Can get domain, range, local name, and name (which is what is actually displayed)
+					String propertyUri = prop.getUri();
+					String domainUri = prop.getDomainUri();
+					String rangeUri = prop.getRangeUri();
+					String name = prop.getName();
+					String propertyKey = propertyUri;
+					boolean isFauxProperty = prop.getIsFauxProperty();
+					//How can we tell if it is a faux property?
+					if(isFauxProperty && StringUtils.isNotEmpty(propertyUri)) {
+						propertyKey = propertyUri + "-" + domainUri + "-" + rangeUri;
+						fauxPropertyHash.put(propertyKey, new HashMap<String, String>());
+						HashMap<String, String> fauxInfo = fauxPropertyHash.get(propertyKey);
+						fauxInfo.put("domainUri", domainUri);
+						fauxInfo.put("rangeUri", rangeUri);
+						fauxInfo.put("name", name);
+						fauxInfo.put("baseUri", propertyUri);
+					}
+					if(StringUtils.isNotEmpty(propertyKey)) {
+						propertyHash.put(propertyKey, prop);
+						propertyKeys.add(propertyKey);
+					}
+				}
+			}
+			
+			parsedMap.put("propertyHash", propertyHash);
+			parsedMap.put("fauxPropertyHash", fauxPropertyHash);
+			parsedMap.put("propertyKeyList", propertyKeys);
+			return parsedMap;
+		}
 
 
 

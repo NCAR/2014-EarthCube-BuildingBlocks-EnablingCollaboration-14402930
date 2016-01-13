@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hp.hpl.jena.rdf.model.Model;
 
 import edu.cornell.mannlib.vitro.webapp.auth.policy.PolicyHelper;
@@ -169,6 +170,7 @@ public abstract class ObjectPropertyTemplateModel extends PropertyTemplateModel 
     }
     
     /**Return data as Model/RDF**/
+    @JsonIgnore
     public Model getStatementDataAsRDF(){
     	ObjectPropertyStatementDao opDao = vreq.getWebappDaoFactory().getObjectPropertyStatementDao();
         return opDao.getRDFForIndividualByProperty(subjectUri, propertyUri, objectKey, domainUri, rangeUri, getSelectQuery(), getConstructQueries(), sortDirection);
