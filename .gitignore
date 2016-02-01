@@ -23,3 +23,7 @@ Thumbs.db
 #VIVO Files#
 /vivocode/.build/
 /vivocode/bin/
+
+# UNAVCO script support
+api_settings.json
+*.pyc
