@@ -101,6 +101,9 @@ def execute_sparql_update(query, endpoint, username, password, operation):
     :param username: username for SPARQL Update
     :param password: password for SPARQL Update
     """
+    logging.info('Starting SPARQL '+operation+'. Attempting to post to Update '
+                'API at '+endpoint)
+    
     sparql = SPARQLWrapper(endpoint)
     sparql.addParameter("email", username)
     sparql.addParameter("password", password)

@@ -13,6 +13,8 @@ from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL
 from api_fx import vivo_api_query, uri_gen, new_vcard, sparql_update
 
 UNAVCO_ID = 'org253530'
+
+MEMBERS_XML = 'http://www.unavco.org/community/membership/members/member-data.xml'
             
 KNOWN_ORGS = {'University Of Alaska Fairbanks': 'org420111',
                 'University of Colorado': 'org994657',
@@ -139,7 +141,7 @@ def get_member(institution,uri=None):
     if uri:
         query = ("PREFIX rdf: <"+RDF+"> "
                 "PREFIX rdfs: <"+RDFS+"> "
-                "PREFIX vlocal: <http://connect.unavco.org/ontology/vlocal#> "
+                "PREFIX vlocal: <"+VLOCAL+"> "
                 "PREFIX obo: <"+OBO+"> "
                 "PREFIX vcard: <"+VCARD+"> "
                 "PREFIX d: <"+D+"> "
@@ -164,7 +166,7 @@ def get_member(institution,uri=None):
     else:
         query = ("PREFIX rdf: <"+RDF+"> "
                 "PREFIX rdfs: <"+RDFS+"> "
-                "PREFIX vlocal: <http://connect.unavco.org/ontology/vlocal#> "
+                "PREFIX vlocal: <"+VLOCAL+"> "
                 "PREFIX obo: <"+OBO+"> "
                 "PREFIX vcard: <"+VCARD+"> "
                 "PREFIX foaf:<"+FOAF+"> "
@@ -238,8 +240,12 @@ def get_member(institution,uri=None):
 
 
 # Get and parse the XML file 
-xml = html.parse(
-        'http://www.unavco.org/community/membership/members/member-data.xml')
+try:
+    xml = html.parse(MEMBERS_XML)
+    log.info('Loaded XML file from '+MEMBERS_XML)
+except IOError:
+    log.info('Failed to load XML file from '+MEMBERS_XML)
+    raise RuntimeError('Could not load XML file. See log for details.')
 
 # Loop through all the XML elements. Our XML file has one per organization. 
 for element in xml.iter():
@@ -250,13 +256,13 @@ for element in xml.iter():
     # Populate the dictionary using element attributes
     institution = element.get('institution')
     if institution:
-        log.info('Attempting to get info for '+institution)
+        log.debug('Attempting to get info for '+institution)
         if institution.endswith('-F'): # Founding institutions have this flag
             institution = institution[:-2]
         
         if institution in KNOWN_ORGS: # This helps us deal with abbreviations
             org_uri = KNOWN_ORGS[institution]
-            log.info('Using stored URI: '+org_uri)
+            log.debug('Using stored URI for '+institution+': '+org_uri)
             q_info = get_member(None,org_uri)
             
         else:
@@ -282,7 +288,7 @@ for element in xml.iter():
                 url_rank_datatype = q_info['urlRankDatatype']
                 url_uri = q_info['urlObj']
                 rep_uri = q_info['repURI']
-                log.info(institution+' found in database with ID '+org_uri)
+                log.debug(institution+' found in database with ID '+org_uri)
                 break
             elif attempt > 5: # This is taking too long, skip it
                 log.warn('Skipping '+institution+
@@ -293,7 +299,7 @@ for element in xml.iter():
                         url_rank_datatype = rep_uri = None
 
                 log.info(institution+' NOT found in the database. ')
-                if args.auto_mode is True:
+                if args.auto_mode:
                     user_input = ''
                 else:
                     user_input = raw_input('\n'+institution+
@@ -331,7 +337,7 @@ for element in xml.iter():
         if info['Website']:
             # Don't do anything if the URLs are the same   
             if info['Website'] != url: 
-                log.info('Updating website to '+info['Website'])
+                log.info('Updating '+institution+' website to '+info['Website'])
                 if url_uri: # Add triples to the OUT graph for the old URL
                     gout.add((D[vcard_uri], VCARD.hasURL, D[url_uri]))
 
@@ -389,7 +395,7 @@ for element in xml.iter():
                         break
                 
                 # Create triples for a new foaf:Person      
-                log.info('Updating representative to '+info['Rep'])        
+                log.info('Updating '+institution+' representative to '+info['Rep'])        
                 new_rep_name = info['Rep'].rsplit(' ',1)
                 first_name = new_rep_name[0]
                 last_name = new_rep_name[1]
@@ -415,30 +421,39 @@ for element in xml.iter():
                 
 timestamp = str(datetime.now())[:-7]
 
-try:                    
-    with open("rdf/member-update-"+timestamp+"-in.ttl", "w") as f:    
-        f.write( g.serialize(format=args.format) )
-        log.info('Wrote RDF to rdf/member-update-'+timestamp+'-in.ttl in '+
-                    args.format+' format.')
-except IOError:
-    # Handle the error.
-    log.exception("Failed to write RDF file. "
-                    "Does a directory named 'rdf' exist?")
-    log.exception("The following RDF was not saved: \n"+
-                    g.serialize(format=args.format))
-try:
-    with open("rdf/member-update-"+timestamp+"-out.ttl", "w") as fout:
-        fout.write( gout.serialize(format=args.format) )
-        log.info('Wrote RDF to rdf/member-update-'+timestamp+'-out.ttl in '+
-                    args.format+' format.')            
-except IOError:
-    # Handle the error.
-    log.exception("Failed to write RDF file. "
-                    "Does a directory named 'rdf' exist?")
-    log.exception("The following RDF was not saved: \n"+
-                    gout.serialize(format=args.format))
+if len(g)>0:
+    try:                    
+        with open("rdf/member-update-"+timestamp+"-in.ttl", "w") as f:    
+            f.write( g.serialize(format=args.format) )
+            log.info('Wrote RDF to rdf/member-update-'+timestamp+'-in.ttl in '+
+                        args.format+' format.')
+    except IOError:
+        # Handle the error.
+        log.exception("Failed to write RDF file. "
+                        "Does a directory named 'rdf' exist?")
+        log.exception("The following RDF was not saved: \n"+
+                        g.serialize(format=args.format))
+else:
+    log.info('No triples to INSERT.') 
+    
+if len(gout)>0:
+    try:
+        with open("rdf/member-update-"+timestamp+"-out.ttl", "w") as fout:
+            fout.write( gout.serialize(format=args.format) )
+            log.info('Wrote RDF to rdf/member-update-'+timestamp+'-out.ttl in '+
+                        args.format+' format.')            
+    except IOError:
+        # Handle the error.
+        log.exception("Failed to write RDF file. "
+                        "Does a directory named 'rdf' exist?")
+        log.exception("The following RDF was not saved: \n"+
+                        gout.serialize(format=args.format))
+else:
+    log.info('No triples to DELETE.') 
     
 # The database will be updated directly if the --api flag is set
-if args.use_api is True:
-    sparql_update(g,'INSERT')
-    sparql_update(gout,'DELETE')
+if args.use_api:
+    if len(g)>0:
+        sparql_update(g,'INSERT')
+    if len(gout)>0:
+        sparql_update(gout,'DELETE')
