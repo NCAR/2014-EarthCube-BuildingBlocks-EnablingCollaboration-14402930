@@ -3,7 +3,7 @@ This script parses UNAVCO's membership XML file and creates RDF to reflect updat
 - - - -
 
 ## How to
-Modify the variables at the top of api_fx.py.
+Modify the variables at the top of api_settings.json.example and rename to api_settings.json.
 $ python members.py
 
 -or-
