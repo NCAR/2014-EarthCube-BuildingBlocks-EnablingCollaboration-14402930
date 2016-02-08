@@ -56,6 +56,7 @@ def vivo_api_query(query):
             json=r.json()
             bindings = json["results"]["bindings"]
         except ValueError:
+            logging.exception(query)            
             logging.exception("Nothing returned from query API. "
                                 "Ensure your credentials and API url are set "
                                 "correctly in api_fx.py.")
@@ -86,9 +87,10 @@ def sparql_update(graph,operation):
             ns_lines.append("PREFIX" + line[7:-2])
         else:
             triple_lines.append(line)
+            
     query = "\n".join(ns_lines)
     query += "\n"+operation+" DATA { GRAPH <"+GRAPH+"> {\n"
-    query += "\n".join(triple_lines)
+    query += "\n".join(x.decode('utf-8') for x in triple_lines)
     query += "\n}}"
     logging.debug(query)
     execute_sparql_update(query, UPDATE_API_URL, EMAIL, PASSWORD, operation)
@@ -157,6 +159,35 @@ def new_vcard(first_name,last_name,full_name,g):
     g.add((D[name_uri], VCARD.familyName, Literal(last_name)))
     if first_name:
         g.add((D[name_uri], VCARD.givenName, Literal(first_name)))
-        #g.add((D[author_uri], RDFS.label, Literal(last_name+', '+first_name)))
-    #else: g.add((D[author_uri], RDFS.label, Literal(last_name))))
     return author_uri
+    
+def call_nsf_api(keyword,datestart,offset=0,rpp=25):
+    while True:
+        API_URL = 'http://api.nsf.gov/services/v1/awards.json'
+        payload = {'rpp': rpp, 'keyword': keyword, 'printFields': 'rpp,offset,'
+                    'id,agency,awardeeCity,awardeeCountryCode,awardeeCounty,'
+                    'awardeeDistrictCode,awardeeName,awardeeStateCode,'
+                    'awardeeZipCode,cfdaNumber,coPDPI,date,startDate,expDate,'
+                    'estimatedTotalAmt,fundsObligatedAmt,dunsNumber,'
+                    'fundProgramName,parentDunsNumber,pdPIName,perfCity,'
+                    'perfCountryCode,perfCounty,perfDistrictCode,perfLocation,'
+                    'perfStateCode,perfZipCode,poName,primaryProgram,transType,'
+                    'title,awardee,poPhone,poEmail,awardeeAddress,perfAddress,'
+                    'publicationResearch,publicationConference,fundAgencyCode,'
+                    'awardAgencyCode,projectOutComesReport,abstractText,'
+                    'piFirstName,piMiddeInitial,piLastName,piPhone,piEmail', 
+                    'dateStart': datestart, 'offset': offset}
+
+        r = requests.post(API_URL,params=payload)
+        try:
+            json=r.json()
+            bindings = json["response"]["award"]
+
+        except ValueError:
+            logging.exception(payload)
+            logging.exception("Nothing returned from query API. "
+                                "Ensure your credentials and API url are set "
+                                "correctly in api_fx.py.")
+            
+            bindings = None
+        return bindings
