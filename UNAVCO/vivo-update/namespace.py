@@ -1,31 +1,30 @@
 from rdflib.namespace import Namespace, NamespaceManager
 from rdflib import Graph
 
-#Our data namespace
+# Our data namespace
 D = Namespace('http://connect.unavco.org/individual/')
-#The VIVO namespace
+# The VIVO namespace
 VIVO = Namespace('http://vivoweb.org/ontology/core#')
-#The VCARD namespace
+# The VCARD namespace
 VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
-#The OBO namespace
+# The OBO namespace
 OBO = Namespace('http://purl.obolibrary.org/obo/')
-#The BIBO namespace
+# The BIBO namespace
 BIBO = Namespace('http://purl.org/ontology/bibo/')
-#The FOAF namespace
+# The FOAF namespace
 FOAF = Namespace('http://xmlns.com/foaf/0.1/')
-#The SKOS namespace
+# The SKOS namespace
 SKOS = Namespace('http://www.w3.org/2004/02/skos/core#')
-#RDF namespace
+# RDF namespace
 RDF = Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
-#CiTO namespace
+# CiTO namespace
 CITO = Namespace('http://purl.org/spar/cito/')
-#RDFS
+# RDFS
 RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
-#LThe local namespace
-VLOCAL = Namespace ('http://connect.unavco.org/ontology/vlocal#')
-#WGS84 namespace
-WGS84 = Namespace ('http://www.w3.org/2003/01/geo/wgs84_pos#')
-
+# The local namespace
+VLOCAL = Namespace('http://connect.unavco.org/ontology/vlocal#')
+# WGS84 namespace
+WGS84 = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
 
 ns_manager = NamespaceManager(Graph())
 ns_manager.bind('d', D)
