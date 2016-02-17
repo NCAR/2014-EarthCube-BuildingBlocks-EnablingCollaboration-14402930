@@ -188,6 +188,7 @@ def get_member(institution,uri=None):
                       "?urlObj vivo:rank ?urlRank . } "                      
                     "FILTER (lcase(STR(?orgLabel)) = '"+institution.lower()+"')"
                 "} ")
+                
 
     bindings = vivo_api_query(query)
     if bindings:
@@ -256,6 +257,7 @@ for element in xml.iter():
     # Populate the dictionary using element attributes
     institution = element.get('institution')
     if institution:
+        institution = institution.strip()
         log.debug('Attempting to get info for '+institution)
         if institution.endswith('-F'): # Founding institutions have this flag
             institution = institution[:-2]
@@ -371,6 +373,8 @@ for element in xml.iter():
         while True:
             if info['Rep']:
                 if info['Rep'] in REP_NICKNAMES:
+                    log.debug(u'Using nickname {} in place of {}'.format(
+                        REP_NICKNAMES[info['Rep']], info['Rep']))
                     # Change the nickname to the real name
                     info['Rep'] = REP_NICKNAMES[info['Rep']]
                                                     
