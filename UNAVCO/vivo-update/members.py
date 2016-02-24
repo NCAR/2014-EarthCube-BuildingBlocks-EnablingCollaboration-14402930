@@ -322,7 +322,7 @@ for element in xml.iter():
 
                     g.add((D[role_uri], OBO.RO_0000052, D[org_uri]))
                     g.add((D[role_uri], VIVO.roleContributesTo, D[UNAVCO_ID]))
-                    g.add((D[UNAVCO_ID], OBO.RO_0000053, D[role_uri]))
+                    g.add((D[UNAVCO_ID], VIVO.contributingRole, D[role_uri]))
                     g.add((D[org_uri], OBO.RO_0000053, D[role_uri]))
 
                     log.info('Added triples for new organization with uri ' +
