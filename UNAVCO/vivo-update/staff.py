@@ -273,7 +273,13 @@ def position_start_triples(per_uri, dept, DEPT_URIS, DEFAULT_ORG_URI, g):
 
 
 def position_end_triples(per_info, g):
-    dtint_uri = per_info['dtint']['value']
+    if 'dtint' not in per_info:
+        dtint_uri = uri_gen('n', g)
+        g.add((D[dtint_uri], RDF.type, VIVO.DateTimeInterval))
+        g.add((URIRef(per_info['position']['value']), VIVO.dateTimeInterval,
+               D[dtint_uri]))
+    else:
+        dtint_uri = per_info['dtint']['value']
     dtend_uri = uri_gen('n', g)
     g.add((URIRef(dtint_uri), VIVO.end, D[dtend_uri]))
     g.add((D[dtend_uri], RDF.type, VIVO.DateTimeValue))
@@ -384,7 +390,7 @@ for row in rows:
         if title:
             title = title.strip()
 
-            if 'dtint' in per_info:  # Old position
+            if 'position' in per_info:  # Old position
                 if title != per_info['positionLabel']['value']:  # Add end date
                     log.info('{} position changed from {} to {}.'.format(
                              name, per_info['positionLabel']['value'], title))
@@ -470,9 +476,9 @@ for person in gemp.subjects(RDF.type, VLOCAL.UNAVCOEmployee):
                  format(name))
 
         per_info = get_person_info(person.replace(D, ''))
-        position_end_triples(per_info, g)
-
         gout.add((person, RDF.type, VLOCAL.UNAVCOEmployee))
+        if 'position' in per_info:
+            position_end_triples(per_info, g)
 
 
 if len(g) > 0:
