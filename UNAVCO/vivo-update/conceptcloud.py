@@ -101,7 +101,7 @@ try:
 
         f.write("];\n\n      "
                 "var urlsBase = '${urls.base}';\n"
-                "</script>  ")
+                "</script>\n ")
 
         log.info("Wrote file to " + args.WC_TERM_DIRECTORY +
                  "wordCloudTerms.ftl")
