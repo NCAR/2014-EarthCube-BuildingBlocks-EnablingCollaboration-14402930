@@ -25,6 +25,8 @@ RDFS = Namespace('http://www.w3.org/2000/01/rdf-schema#')
 VLOCAL = Namespace('http://connect.unavco.org/ontology/vlocal#')
 # WGS84 namespace
 WGS84 = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
+# EarthCollab Schema namespace
+EC = Namespace('https://library.ucar.edu/earthcollab/schema#')
 
 ns_manager = NamespaceManager(Graph())
 ns_manager.bind('d', D)
@@ -38,3 +40,4 @@ ns_manager.bind("cito", CITO)
 ns_manager.bind("rdfs", RDFS)
 ns_manager.bind("vlocal", VLOCAL)
 ns_manager.bind("wgs84", WGS84)
+ns_manager.bind("ec", EC)

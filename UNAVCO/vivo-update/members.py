@@ -311,7 +311,10 @@ for element in xml.iter():
                     # Create a new organization
                     org_uri = uri_gen('org')
                     role_uri = uri_gen('n')
-                    g.add((D[org_uri], RDF.type, FOAF.Organization))
+                    if 'University' in institution:
+                        g.add((D[org_uri], RDF.type, VIVO.University))
+                    else:
+                        g.add((D[org_uri], RDF.type, FOAF.Organization))
                     g.add((D[org_uri], RDFS.label, Literal(institution)))
                     g.add((D[org_uri], OBO.RO_0000053, D[role_uri]))
                     if info['Type'] == 'Member Institution':
