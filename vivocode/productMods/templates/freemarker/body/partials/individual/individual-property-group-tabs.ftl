@@ -64,6 +64,7 @@
 </#list>
 <script>
     var individualLocalName = "${individual.localName}";
+    var appBase = "${urls.base}";
 </script>
 
 ${stylesheets.add('<link rel="stylesheet" href="${urls.base}/css/individual/individual-property-groups.css" />')}

@@ -20,7 +20,8 @@ $(document).ready(function(){
 						 "propertyURI": propertyURI, 
 						 "domainURI":domainURI, 
 						 "rangeURI":rangeURI};
-				 var externalIndController = "http://localhost:8080/earthcollabvivo/externalIndividualController";
+				 //appBase is variable defined in individual-property-group-tabs
+				 var externalIndController = appBase + "/externalIndividualController";
 				 
 					 $.getJSON(externalIndController, data, function(results) {
 					 parseExternalContent(results, externalURI, externalBaseURL, externalSourceLabel);

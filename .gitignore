@@ -23,3 +23,6 @@ Thumbs.db
 #VIVO Files#
 /vivocode/.build/
 /vivocode/bin/
+/vivocode/rdf/abox/filegraph/externalLookupServices.n3
+vivocode/rdf/abox/filegraph/externalLookupServices.n3
+externalLookupServices.n3
