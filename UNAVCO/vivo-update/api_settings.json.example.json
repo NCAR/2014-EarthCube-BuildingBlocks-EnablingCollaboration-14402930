@@ -1,0 +1,7 @@
+{
+    "api_user": "root@university.edu",
+    "api_password": "very_secure_password1",
+    "query_api_url": "http://localhost:8080/vivo/api/sparqlQuery",
+    "update_api_url": "http://localhost:8080/vivo/api/sparqlUpdate",
+    "default_graph": "http://vitro.mannlib.cornell.edu/default/vitro-kb-2"
+}
