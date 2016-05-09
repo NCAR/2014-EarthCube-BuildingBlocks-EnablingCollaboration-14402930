@@ -50,8 +50,12 @@ $(document).ready(function(){
 					var name = subclass.name;
 					var statements = subclass.statements;
 					if(statements.length > 0) {
-						//Copying how regular items are displayed but this may have consequences for 
-						displayHTML += "<li class='subclass' role='listitem'>" + name + "<ul class='subclass-property-list'>";
+						var subclassDisplayName = name.toLowerCase();
+						if(externalSourceLabel) {
+							subclassDisplayName += externalSourceLabel ;
+						}
+						displayHTML += "<li class='subclass' role='listitem'><h3>" + subclassDisplayName + "</h3><ul class='subclass-property-list'>";
+						
 						var i;
 						for(i = 0; i < statements.length; i++) {
 							var statement = statements[i];
@@ -61,10 +65,12 @@ $(document).ready(function(){
 								var pubName = statementData.infoResourceName;
 								var infoResourceURI = statementData.infoResource;
 								var externalPubURL = externalBaseURL + "/individual?uri=" + infoResourceURI;
-								displayHTML += "<li role='listitem'><a title='resource name' href='" + externalPubURL + "'>" + pubName + "</a></li>";
-								if(externalSourceLabel) {
-									displayHTML += externalSourceLabel ;
-								}
+								displayHTML += "<li role='listitem'><a title='resource name' href='" + externalPubURL + "'>" + pubName + "</a>";
+								//if(externalSourceLabel) {
+								//	displayHTML += "<br/>" + externalSourceLabel ;
+								//}
+								displayHTML += "</li>";
+
 							}
 						}
 						displayHTML += "</ul></li>";
