@@ -7,6 +7,7 @@
  
 <#include "individual-setup.ftl">
 <#import "lib-vivo-properties.ftl" as vp>
+<#import "lib-external-properties.ftl" as lext>
 <#--Number of labels present-->
  <#if !labelCount??>
      <#assign labelCount = 0 >
@@ -72,7 +73,9 @@
             <#else>                
                 <h1 class="vcard foaf-person">
                     <#-- Label -->
-                    <span itemprop="name" class="fn"><@p.label individual editable labelCount localesCount/></span>
+                    <span itemprop="name" class="fn"><@p.label individual editable labelCount localesCount/>
+                    <#if lext.hasExternalInfo()><span id='externalProfileImages'></span></#if>
+                    </span>
 
                     <#--  Display preferredTitle if it exists; otherwise mostSpecificTypes -->
                     <#assign title = propertyGroups.pullProperty("http://purl.obolibrary.org/obo/ARG_2000028","http://www.w3.org/2006/vcard/ns#Title")!>
@@ -163,7 +166,8 @@
 
 ${stylesheets.add('<link rel="stylesheet" href="${urls.base}/css/individual/individual.css" />',
                   '<link rel="stylesheet" href="${urls.base}/css/individual/individual-vivo.css" />',
-                  '<link rel="stylesheet" href="${urls.base}/js/jquery-ui/css/smoothness/jquery-ui-1.8.9.custom.css" />')}
+                  '<link rel="stylesheet" href="${urls.base}/js/jquery-ui/css/smoothness/jquery-ui-1.8.9.custom.css" />',
+                  '<link rel="stylesheet" href="${urls.base}/css/individual/linkedprofile.css" />')}
 
 ${headScripts.add('<script type="text/javascript" src="${urls.base}/js/tiny_mce/tiny_mce.js"></script>',
                   '<script type="text/javascript" src="${urls.base}/js/jquery_plugins/qtip/jquery.qtip-1.0.0-rc3.min.js"></script>',

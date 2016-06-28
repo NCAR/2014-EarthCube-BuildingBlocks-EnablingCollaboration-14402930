@@ -14,6 +14,9 @@ $(document).ready(function(){
 			var externalBaseURL =  externalInfo["externalBaseURL"];
 			var externalSourceLabel =  externalInfo["sourceLabel"];
 			 
+			//Include icons for linked images on page
+			displayExternalLinkedIcons(externalURI, externalBaseURL, externalSourceLabel);
+			
 			var propertyList = externalInfo["properties"];
 			var plen = propertyList.length;
 			var p;
@@ -38,6 +41,13 @@ $(document).ready(function(){
 			
 		 }
 			 
+		}
+	
+		function displayExternalLinkedIcons(externalURI, externalBaseURL, externalSourceLabel) {
+			if(externalURI != "" && externalBaseURL != "") {
+				var imageHTML = "<a  href='" + externalBaseURL + "/individual?uri=" + externalURI + "' title='see linked profile at " + externalSourceLabel + "'><img class='linkedprofile' src='" + baseUrl + "/images/cornellvivoicon2.png'></a>";
+				$("#externalProfileImages").append(imageHTML);
+			}
 		}
 //		 $.each($('li.external-property-list-item'), function() {
 //			 var externalServiceURL = $(this).attr("externalServiceURL");

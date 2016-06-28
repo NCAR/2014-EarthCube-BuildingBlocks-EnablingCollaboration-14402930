@@ -6,14 +6,14 @@
 <#macro externalObjectProperty rangeClass property editable template=property.template>
     <#--Start out simple, then we can try and utilize the same template code as the regular template to display properties-->
     <#-- First, check and see if there is an external property we want displayed here-->
-    <#local externalContent = getExternalPropertyInfo(property) >
+    <#local externalContent = getExternalPropertyInfo() >
     <#if externalContent?has_content>
      	<@outputExternalURIInfo externalContent rangeClass property />
      </#if>
    
 </#macro>
 
-<#function getExternalPropertyInfo property>
+<#function getExternalPropertyInfo>
 	<#local returnInfo = "" />
     <#if externalURIInfo?has_content>
  		<#local returnInfo = externalURIInfo />
@@ -21,6 +21,14 @@
  		
  		
 	<#return returnInfo>
+</#function>
+
+<#function hasExternalInfo>
+	<#local extInfo = getExternalPropertyInfo() />
+	<#if extInfo?has_content>
+		<#return true>
+	</#if>
+	<#return false>
 </#function>
 
 <#--externalURIInfo is array of POJOS-->
@@ -98,3 +106,14 @@
         </#if>
 </#list>
 </#macro>
+
+<#-- output icons for linked external profiles -->
+<#-- May deal with this client side instead -->
+<#--macro displayLinkedProfilesWithIcons >
+	<#local externalInfo = lext.getExternalPropertyInfo() />
+	<#local externalURIHash = {} />
+	<#list externalURIInfo as externalURIInfoItem>	
+			
+	</#list>
+	
+</#macro-->
