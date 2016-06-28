@@ -180,6 +180,9 @@ class IndividualResponseBuilder {
         returnResults.put("propertyList", gpl);
         Map<String, Object> parsedList = parsePropertyList(gpl);
         returnResults.put("parsedList", parsedList);
+        //Remove individual since we rely on parsed list and property list for info
+        returnResults.remove("individual");
+        returnResults.remove("openSocial");
         //Convert all of body to json and return
         ObjectMapper mapper = new ObjectMapper();
 		try {

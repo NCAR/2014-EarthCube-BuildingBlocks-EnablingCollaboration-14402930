@@ -205,7 +205,11 @@ public class ExternalEntityDataGetter extends DataGetterBase implements DataGett
     		}
     	}
     	
-    	
+    	if(pageData.containsKey("externalURIInfo")) {
+    		List<ExternalURIInformation> pageEInfoList = (List<ExternalURIInformation>)pageData.get("externalURIInfo");
+    		externalURIInfo.addAll(pageEInfoList);
+    	}
+    	log.debug("Retrieved external data getter info and returning template data");
     	templateData.put("externalURIInfo", externalURIInfo);
     	
     	return templateData; 

@@ -52,11 +52,15 @@ public class ExternalIndividualController extends FreemarkerHttpServlet {
 	protected ResponseValues processRequest(VitroRequest vreq) {
 		try {
 			//Get the parameters for serviceURL and get the response
+			
 			String serviceURL = vreq.getParameter("serviceURL");
-			String propertyURI = vreq.getParameter("propertyURI");
-			String domainURI = vreq.getParameter("domainURI");
-			String rangeURI = vreq.getParameter("rangeURI");
-			return assembleJSONResponse(serviceURL, propertyURI, domainURI, rangeURI);
+			String properties = vreq.getParameter("properties");
+			String propertiesLength = vreq.getParameter("propertiesLength");
+			int pLength = new Integer(propertiesLength).intValue();
+			//Parameters in format properties[0][domainURI], etc.
+			JSONArray propertiesJSON = (JSONArray) JSONSerializer.toJSON(properties);
+			
+			return assembleJSONResponse(serviceURL, propertiesJSON);
 		} catch (Throwable e) {
 			log.error(e, e);
 			return new ExceptionResponseValues(e);
@@ -70,12 +74,12 @@ public class ExternalIndividualController extends FreemarkerHttpServlet {
 		doGet(request, response);
 	}
 	
-	ResponseValues assembleJSONResponse(String serviceURL, String propertyURI, String domainURI, String rangeURI) throws TemplateModelException {
+	ResponseValues assembleJSONResponse(String serviceURL, JSONArray propertiesJSON) throws TemplateModelException {
 		
 		
 		try {
 			String jsonString = "";
-			JSONObject jsonObject = this.getExternalInfoFromService(serviceURL, propertyURI, domainURI, rangeURI);
+			JSONObject jsonObject = this.getExternalInfoFromService(serviceURL, propertiesJSON);
 			JSONResponseValues jr = new JSONResponseValues(ContentType.JSON, jsonObject.toString());
 			return jr;
 		} catch (Exception e) {
@@ -85,7 +89,7 @@ public class ExternalIndividualController extends FreemarkerHttpServlet {
 		}
 	}
 	
-	JSONObject getExternalInfoFromService(String serviceURL, String propertyURI, String domainURI, String rangeURI) {
+	JSONObject getExternalInfoFromService(String serviceURL, JSONArray propertiesJSON) {
 		JSONObject jsonObject = null;
 		String results = null;
 		
@@ -106,7 +110,7 @@ public class ExternalIndividualController extends FreemarkerHttpServlet {
 			log.debug("Results string is " + results);
 			// System.out.println("results before processing: "+results);
 			
-			jsonObject = extractInfoAsJSON(results, propertyURI, domainURI, rangeURI);
+			jsonObject = extractInfoAsJSON(results, propertiesJSON);
 			
 
 		} catch (Exception ex) {
@@ -117,26 +121,38 @@ public class ExternalIndividualController extends FreemarkerHttpServlet {
 	}
 
 
-	private JSONObject extractInfoAsJSON(String results,  String propertyURI, String domainURI, String rangeURI) {
+	private JSONObject extractInfoAsJSON(String results,  JSONArray propertiesJSON) {
 		JSONObject returnJSON = null;
 		try {
 			JSONObject resultsJSON = (JSONObject) JSONSerializer.toJSON(results);
-			if(StringUtils.isNotEmpty(propertyURI)) {
-				String propertyKey = propertyURI;
-				//For publications, need "http://vivoweb.org/ontology/core#relatedBy-http://xmlns.com/foaf/0.1/Person-http://vivoweb.org/ontology/core#Authorship"
-				if(StringUtils.isNotEmpty(domainURI) && StringUtils.isNotEmpty(rangeURI)) {
-					propertyKey = propertyURI + "-" + domainURI + "-" + rangeURI;
+			returnJSON = new JSONObject();
+			int plength = propertiesJSON.size();
+			int p;
+			for(p = 0; p < plength; p ++) {
+				JSONObject propertyInfo = propertiesJSON.getJSONObject(p);
+				if(propertyInfo.containsKey("propertyURI")) {
+					String propertyURI =  propertyInfo.getString("propertyURI");
+					String propertyKey = propertyURI;
+					//For publications, need "http://vivoweb.org/ontology/core#relatedBy-http://xmlns.com/foaf/0.1/Person-http://vivoweb.org/ontology/core#Authorship"
+					if(propertyInfo.containsKey("domainURI") && propertyInfo.containsKey("rangeURI")
+							&& StringUtils.isNotEmpty(propertyInfo.getString("domainURI"))
+							&& StringUtils.isNotEmpty(propertyInfo.getString("rangeURI"))
+							) {
+						String domainURI = propertyInfo.getString("domainURI");
+						String rangeURI = propertyInfo.getString("rangeURI");
+						propertyKey = propertyURI + "-" + domainURI + "-" + rangeURI;
+					}
+					//Utilize propertyHash
+					//Path - results.parsedList.propertyHash
+					//TODO: Include check to see that this exists
+					JSONObject propHash = resultsJSON.getJSONObject("parsedList").getJSONObject("propertyHash");
+					JSONObject propInfo = propHash.getJSONObject(propertyKey);
+					returnJSON.put(propertyKey, propInfo);
+					//returnJSON = propInfo;
+				} else {
+					returnJSON = resultsJSON;
 				}
-				//Utilize propertyHash
-				//Path - results.parsedList.propertyHash
-				//TODO: Include check to see that this exists
-				JSONObject propHash = resultsJSON.getJSONObject("parsedList").getJSONObject("propertyHash");
-				JSONObject propInfo = propHash.getJSONObject(propertyKey);
-				returnJSON = propInfo;
-			} else {
-				returnJSON = resultsJSON;
 			}
-			
 			
 		} catch(Exception ex) {
 			log.error("Error occurred in parsing results");
