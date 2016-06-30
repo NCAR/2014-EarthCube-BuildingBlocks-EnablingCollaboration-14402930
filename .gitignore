@@ -26,7 +26,7 @@ Thumbs.db
 /vivocode/rdf/abox/filegraph/externalLookupServices.n3
 vivocode/rdf/abox/filegraph/externalLookupServices.n3
 */externalLookupServices.n3
-
+/vivocode/build.properties
 # UNAVCO script support
 api_settings.json
 *.pyc
