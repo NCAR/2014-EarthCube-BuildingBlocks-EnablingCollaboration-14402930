@@ -7,7 +7,7 @@
  
 <#include "individual-setup.ftl">
 <#import "lib-vivo-properties.ftl" as vp>
-<#import "lib-external-properties.ftl" as lext>
+<#import "lib-external-properties.ftl" as foafext>
 <#--Number of labels present-->
  <#if !labelCount??>
      <#assign labelCount = 0 >
@@ -74,7 +74,8 @@
                 <h1 class="vcard foaf-person">
                     <#-- Label -->
                     <span itemprop="name" class="fn"><@p.label individual editable labelCount localesCount/>
-                    <#if lext.hasExternalInfo()><span id='externalProfileImages'></span></#if>
+                    
+                    <#if foafext.hasExternalInfo()><span id='externalProfileImages'></span></#if>
                     </span>
 
                     <#--  Display preferredTitle if it exists; otherwise mostSpecificTypes -->
@@ -97,6 +98,7 @@
                     </#if>                        
                 </h1>
             </#if>
+            
             <!-- Positions -->   
             <#include "individual-positions.ftl">
         </header>

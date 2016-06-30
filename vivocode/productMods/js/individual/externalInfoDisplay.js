@@ -32,8 +32,10 @@ $(document).ready(function(){
 				if(allResults != null && allResults != "") {
 					for(propertyKey in allResults) {
 						var propertyInfo = allResults[propertyKey];
-						
-						parseExternalContent(propertyInfo, externalURI, externalBaseURL, externalSourceLabel, propertyInfo["uri"], propertyInfo["domainUri"], propertyInfo["rangeUri"]);
+						//Requesting a property doesn't entail information being available
+						if(propertyInfo && propertyInfo != null) {
+							parseExternalContent(propertyInfo, externalURI, externalBaseURL, externalSourceLabel, propertyInfo["uri"], propertyInfo["domainUri"], propertyInfo["rangeUri"]);
+						}
 					}
 				}
 				//parseExternalContent(results, externalURI, externalBaseURL, externalSourceLabel, propertyURI, domainURI, rangeURI);
@@ -155,6 +157,11 @@ $(document).ready(function(){
 			return createPositionsHTML(statements, displayName, externalURI, externalBaseURL, externalSourceLabel);
 		} else if(propertyURI == "http://vivoweb.org/ontology/core#relatedBy" && domainURI == "http://xmlns.com/foaf/0.1/Person" && rangeURI == "http://vivoweb.org/ontology/core#Authorship") {
 			return createPublicationsHTML(statements, subclass,externalURI, externalBaseURL, externalSourceLabel);
+		} else if(propertyURI == "http://purl.obolibrary.org/obo/ARG_2000028" && domainURI == "http://xmlns.com/foaf/0.1/Person" && rangeURI == "http://www.w3.org/2006/vcard/ns#Work") {
+			return createEmailHTML(statements, subclass,externalURI, externalBaseURL, externalSourceLabel);
+		}
+		else if(propertyURI == "http://purl.obolibrary.org/obo/ARG_2000028" && domainURI == "http://xmlns.com/foaf/0.1/Person" && rangeURI == "http://www.w3.org/2006/vcard/ns#Email") {
+			return createEmailHTML(statements, subclass,externalURI, externalBaseURL, externalSourceLabel);
 		}
 	}
 	
@@ -222,6 +229,31 @@ $(document).ready(function(){
 		}
 		return displayHTML;
 		
+	}
+	
+	function createEmailHTML(statements, subclass,externalURI, externalBaseURL, externalSourceLabel) {
+		var displayHTML = "";
+		var i;
+		for(i = 0; i < statements.length; i++) {
+			var statement = statements[i];
+			if("allData" in statement) {
+				var statementData = statement.allData;
+				
+				
+					
+					
+					if("emailAddress" in statementData) {
+						
+						var emailAddress = statementData["emailAddress"];
+						displayHTML += "<li role'listitem'><a class='email' title='email' href='mailto:'" + emailAddress + "' itemprop='email'>" + emailAddress + "</a></li>" ;
+					}
+					
+				
+				//org, outerOrg, position, middleOrg are all URLs so those can be included if need be
+				displayHTML += "<span style='font-size:0.825em'>* " + externalSourceLabel + "</span></li>";
+			}
+		}
+		return displayHTML;
 	}
 	
  
