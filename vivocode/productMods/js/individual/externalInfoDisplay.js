@@ -35,6 +35,19 @@ $(document).ready(function(){
 						//Requesting a property doesn't entail information being available
 						if(propertyInfo && propertyInfo != null) {
 							parseExternalContent(propertyInfo, externalURI, externalBaseURL, externalSourceLabel, propertyInfo["uri"], propertyInfo["domainUri"], propertyInfo["rangeUri"]);
+						} else {
+							//if information is not being returned, then go ahead and replace the external content div
+								var propertyInfoItems = propertyKey.split("-");
+								console.log(propertyInfoItems);
+								if(propertyInfoItems.length == 3) {
+									var propertyURI = propertyInfoItems[0];
+									var domainURI = propertyInfoItems[1];
+									var rangeURI = propertyInfoItems[2];
+									var contentItem = getExternalContentItem(externalURI, propertyURI, domainURI, rangeURI);
+									contentItem.replaceWith("");
+									hideLoadingIndicator(externalURI, propertyURI, domainURI, rangeURI);
+								}
+							
 						}
 					}
 				}
@@ -147,7 +160,24 @@ $(document).ready(function(){
 			}
 		}
 		//$("ul[externalURI='" + externalURI + "']").append("<li>" + displayHTML + "</li>");
-		$("li.external-property-list-item[externalURI='" + externalURI + "'][propertyURI='" + propertyURI + "'][domainURI='" + domainURI + "'][rangeURI='" + rangeURI + "']").replaceWith(displayHTML);
+		//If SOMETHING to display, should display otherwise this should be removed
+		var contentItem = getExternalContentItem(externalURI, propertyURI, domainURI, rangeURI);
+		showContentItem(displayHTML, contentItem);
+		hideLoadingIndicator(externalURI, propertyURI, domainURI, rangeURI);
+	}
+	
+	function getExternalContentItem(externalURI, propertyURI, domainURI, rangeURI) {
+		return $("li.external-property-list-item[externalURI='" + externalURI + "'][propertyURI='" + propertyURI + "'][domainURI='" + domainURI + "'][rangeURI='" + rangeURI + "']");
+	}
+	
+	function showContentItem(displayHTML, contentItem) {
+		contentItem.replaceWith(displayHTML);
+		contentItem.removeClass("hidden");
+	}
+	
+	function hideLoadingIndicator(externalURI, propertyURI, domainURI, rangeURI) {
+		var indicator = $("li.li-indicator[externalURI='" + externalURI + "'][propertyURI='" + propertyURI + "'][domainURI='" + domainURI + "'][rangeURI='" + rangeURI + "']");
+		indicator.addClass("hidden");
 	}
 	
 	function createDisplayHTML(statements, subclass, displayName, propertyURI, domainURI, rangeURI, externalURI, externalBaseURL, externalSourceLabel) {

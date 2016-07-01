@@ -76,10 +76,15 @@
 					<#if serviceName?has_content>
 						<#local label = label + " (" + serviceName + ")" />
 					</#if>
-					<li class="subclass external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
+			<li class="li-indicator" externalURI="${externalURI!}" propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}">	            
+					<div>
+    				<img id="loadingIndicator" class="indicator" src="${urls.base}/images/indicatorWhite.gif" alt="${i18n().processing_indicator}"/>
+    				</div>
+    		</li>
+					<li class="hidden subclass external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
 		                propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}"
 		                sourceLabel="${label}">
-		                External Content
+		                &nbsp;
 			       	</li>
 	            </#if>
     	</#list>
@@ -124,10 +129,14 @@
 			<#if serviceName?has_content>
 				<#local label = label + " (" + serviceName + ")" />
 			</#if>
-			<li class="external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
+			<li class="li-indicator" externalURI="${externalURI!}" propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}">	            
+					<div>
+    				<img id="loadingIndicator" class="indicator" src="${urls.base}/images/indicatorWhite.gif" alt="${i18n().processing_indicator}"/>
+    				</div>
+    		</li>
+			<li class="hidden external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
 	            propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}"
 	            sourceLabel="${label}">
-	            &nbsp;
 	       	</li>
         </#if>
 </#list>
@@ -154,10 +163,14 @@
 			<#if serviceName?has_content>
 				<#local label = label + " (" + serviceName + ")" />
 			</#if>
-			
-			<li class="external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
+			<li class="li-indicator" externalURI="${externalURI!}" propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}">	            
+					<div>
+    				<img id="loadingIndicator" class="indicator" src="${urls.base}/images/indicatorWhite.gif" alt="${i18n().processing_indicator}"/>
+    				</div>
+    		</li>
+			<li class="hidden external-property-list-item" role="listitem"  externalURI="${externalURI!}"  externalServiceURL="${serviceURL!}" 
 	            propertyURI="${property.uri!}" domainURI="${property.domainUri!}" rangeURI="${property.rangeUri!}" externalBaseURL="${externalBaseURL!}"
-	            sourceLabel="${label}">External Contact Info</li>
+	            sourceLabel="${label}">&nbsp;</li>
 	      <#else>
 	      	
         </#if>
