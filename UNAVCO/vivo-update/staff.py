@@ -97,6 +97,7 @@ def get_employees(gemp):
              "?vcard vcard:hasName ?name . "
              "?name vcard:givenName ?gname . "
              "?name vivo:middleName ?midName . "
+             "?person obo:RO_0001025 ?location . "
              "?name vcard:familyName ?famName . } "
              "WHERE { "
              "?person a vlocal:UNAVCOEmployee . "
@@ -106,6 +107,7 @@ def get_employees(gemp):
              "?name vcard:givenName ?gname . "
              "OPTIONAL{?name vivo:middleName ?midName . }"
              "?name vcard:familyName ?famName . "
+             "OPTIONAL{?person obo:RO_0001025 ?location . }"
              "} ")
 
     gemp = vivo_api_construct(query, gemp)
@@ -391,7 +393,9 @@ for row in rows:
             title = title.strip()
 
             if 'position' in per_info:  # Old position
-                if title != per_info['positionLabel']['value']:  # Add end date
+                if title == "Content Specialist/Data Tech II":  # Eugh!
+                    pass
+                elif title != per_info['positionLabel']['value']:  # Add end
                     log.info('{} position changed from {} to {}.'.format(
                              name, per_info['positionLabel']['value'], title))
                     position_end_triples(per_info, g)
@@ -477,6 +481,9 @@ for person in gemp.subjects(RDF.type, VLOCAL.UNAVCOEmployee):
 
         per_info = get_person_info(person.replace(D, ''))
         gout.add((person, RDF.type, VLOCAL.UNAVCOEmployee))
+        for location in gemp.objects(person, OBO.RO_0001025):
+                gout.add((person, OBO.RO_0001025, location))
+                gout.add((location, OBO.RO_0001015, person))
         if 'position' in per_info:
             position_end_triples(per_info, g)
 
