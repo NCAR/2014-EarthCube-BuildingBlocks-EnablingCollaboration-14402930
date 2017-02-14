@@ -27,6 +27,7 @@ ec:Project a owl:Class ;
 ec:sourcePlatform a owl:ObjectProperty ;
 	rdfs:label "Source Platform" ;
 	rdfs:comment "A dataset was collected using an observational platform." ;
+	rdfs:domain gcis:Dataset ;
 	rdfs:range gcis:Platform .
 
 ec:Parameter a owl:Class;
