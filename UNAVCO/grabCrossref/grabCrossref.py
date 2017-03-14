@@ -1,17 +1,23 @@
 import requests
 import argparse
-import codecs
-import pickle
+import logging
+from logging import handlers
+# import codecs
 from datetime import datetime
 from rdflib import Literal, Graph, URIRef
 from rdflib.namespace import Namespace
 import namespace as ns
 from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF
 from api_fx import (crossref_lookup, uri_gen, uri_lookup_doi, name_lookup,
-                    name_selecter, assign_authorship, temp_journal, data_cite,
-                    temp_subject, get_publishers, get_journals)
+                    name_selecter, assign_authorship, get_subject,
+                    get_publishers, get_journals)
 from json_fx import parse_publication_date, parse_authors
 from utility import join_if_not_empty, add_date
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 journallist = [[], []]
 subjectlist = [[], []]
 
@@ -19,15 +25,46 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--manual', action="store_true",
                         help="Input DOIs manually.")
+    parser.add_argument("--debug", action="store_true", help="Set logging "
+                        "level to DEBUG.")
 
     # Parse
     args = parser.parse_args()
 
-# matchlist=[[],[]]
+# Set up logging to file and console
+LOG_FILENAME = 'logs/grabCrossref.log'
+LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+if args.debug:
+    LOGGING_LEVEL = logging.DEBUG
+    logging.getLogger("requests").setLevel(logging.DEBUG)
+else:
+    LOGGING_LEVEL = logging.INFO
+    logging.getLogger("requests").setLevel(logging.WARNING)
+
+# Create console handler and set level
+handler = logging.StreamHandler()
+handler.setLevel(LOGGING_LEVEL)
+formatter = logging.Formatter(LOG_FORMAT)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+# Create error file handler and set level
+handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=5000000,
+                                               backupCount=5, encoding=None,
+                                               delay=0)
+handler.setLevel(LOGGING_LEVEL)
+formatter = logging.Formatter(LOG_FORMAT)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+log = logging.getLogger(__name__)
+
 with open('matchlistfile.pickle', 'ab+') as f:
     try:
         matchlist = pickle.load(f)
-    except:
+    except EOFError:
         print('No matchlistfile.pickle file, new person objects will be '
               'created')
         matchlist = [[], []]
@@ -89,7 +126,7 @@ def manual_entry():
 
 
 def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
-    pub_uri = uri_gen('pub')
+    pub_uri = uri_gen('pub', g)
 
     # Article info
     subjects = cr_result["subject"] if "subject" in cr_result else None
@@ -125,14 +162,6 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
                "container-title" in cr_result and
                cr_result["container-title"] else None)
     if journal:
-        # journal = max(journal, key=len) if journal else None
-        # NEED TO FIND EXISTING JOURNALS
-        # THiS was put here because it was previously left out of
-        # the script. It will create RDF to define journals for
-        # publications already in VIVO. It should be moved to the big
-        # else statement below eventually.
-        # journal_uri = temp_journal(journal, g)
-
         if journal in journal_list:
             journal_uri = journal_list[journal]
 
@@ -144,7 +173,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
             # publisher_list = get_publishers()
             # raw_input(publisher_list)
 
-            journal_uri = D[uri_gen('n')]
+            journal_uri = D[uri_gen('n', g)]
             journal_list[journal] = str(journal_uri)
 
             g.add((D[pub_uri], VIVO.hasPublicationVenue,
@@ -162,7 +191,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
                 if publisher in publisher_list:
                     publisher_uri = publisher_list[publisher]
                 else:
-                    publisher_uri = D[uri_gen('n')]
+                    publisher_uri = D[uri_gen('n', g)]
                     g.add(((URIRef(publisher_uri)), RDF.type, VIVO.Publisher))
                     g.add(((URIRef(publisher_uri)), RDFS.label,
                           Literal(publisher)))
@@ -192,7 +221,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
                                                                   None,
                                                                   None)
 
-    date_uri = uri_gen('n')
+    date_uri = uri_gen('n', g)
     g.add((D[pub_uri], VIVO.dateTimeValue, D[date_uri]))
     add_date(D[date_uri], publication_year, g, publication_month,
              publication_day)
@@ -229,7 +258,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
     if subjects:
         for subject in subjects:
             # NEED TO FIND SUBJECT IN VIVO
-            concept_uri = temp_subject(subject, g)
+            concept_uri = get_subject(subject, g)
 
             if concept_uri:
                 # print 'found existing '+subject
@@ -243,7 +272,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
                       D[subject_uri]))
             else:
                 # print 'made new '+subject
-                subject_uri = uri_gen('sub')
+                subject_uri = uri_gen('sub', g)
                 subjectlist[0].append(subject)
                 subjectlist[1].append(subject_uri)
                 g.add((D[pub_uri], VIVO.hasSubjectArea,
@@ -260,6 +289,7 @@ def gen_triples(cr_result, matchlist, publisher_list, journal_list, doi=None):
             g.add((D[pub_uri], BIBO.pageEnd, Literal(endpage)))
         else:
             endpage = None
+
 
 # Test doi below, do not add to VIVO
 dois = ['10.1111/j.2041-6962.2012.00097.x', '10.18666/jpra-2016-v34-i2-6495 ']
