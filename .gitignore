@@ -30,3 +30,4 @@ vivocode/rdf/abox/filegraph/externalLookupServices.n3
 # UNAVCO script support
 api_settings.json
 *.pyc
+matchlistfile.pickle
