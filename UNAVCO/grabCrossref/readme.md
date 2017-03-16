@@ -1,15 +1,3 @@
-# UNAVCO
-
-## Project personnel 
-
-Name  | Email | Title | Role
-------------- | ------------- | ------------- | -------------
-Benjamin Gross | mbgross@unavco.org | Content Specialist/Data Tech II | Ingest
-Chuck Meertens | chuckm@unavco.org | Director of Geodetic Data Services | Data
-Fran Boler | boler@unavco.org | Project Manager III | Data
-Linda Rowan | rowan@unavco.org | External Affairs Director | Co-PI
-Doug Ertz | ertz@unavco.org | Project Manager III | IT
-
 ## What's grabCrossref?
 
 The grabCrossref will attempt to lookup publication information given a list of DOIs. It utilizes the Crossref api to grab publication metadata in JSON format. It parses the metadata and formats it into VIVO-friendly RDF. Along the way, the script tries to match objects with those that already exist in your VIVO installation using VIVO's query API. This implementation is very crude at this point, and I take no responsibility for any disasters that this code will bring upon your VIVO or your sanity. 
@@ -17,6 +5,9 @@ The grabCrossref will attempt to lookup publication information given a list of 
 Code snippets were used from Justin Littman's orcid2vivo script: https://github.com/gwu-libraries/orcid2vivo
 
 ## Using the script
+
+### Set up Namespace
+Edit namespace.py and change 'D' from http://connect.unavco.org to your local VIVO namespace.
 
 ### Set DOIs to look up 
 There are two options for running this script. 
