@@ -1,6 +1,6 @@
 # UNAVCO
 
-##Project personnel 
+## Project personnel 
 
 Name  | Email | Title | Role
 ------------- | ------------- | ------------- | -------------
@@ -10,25 +10,27 @@ Fran Boler | boler@unavco.org | Project Manager III | Data
 Linda Rowan | rowan@unavco.org | External Affairs Director | Co-PI
 Doug Ertz | ertz@unavco.org | Project Manager III | IT
 
-##What's grabCrossref?
+## What's grabCrossref?
 
 The grabCrossref will attempt to lookup publication information given a list of DOIs. It utilizes the Crossref api to grab publication metadata in JSON format. It parses the metadata and formats it into VIVO-friendly RDF. Along the way, the script tries to match objects with those that already exist in your VIVO installation using VIVO's query API. This implementation is very crude at this point, and I take no responsibility for any disasters that this code will bring upon your VIVO or your sanity. 
 
 Code snippets were used from Justin Littman's orcid2vivo script: https://github.com/gwu-libraries/orcid2vivo
 
-##Using the script
+## Using the script
 
-###Set DOIs to look up 
-The list of DOIs to look up can be changed toward the top of grabCrossref.py. Look for dois = ['doi1','doi2', etc.]
+### Set DOIs to look up 
+There are two options for running this script. 
+1. Manually, by starting the script like: python grabCrossref.py --manual
+2. Edit grabCrossref.py and look for the list of DOIs in the format: dois = ['doi1','doi2', etc.]
 
-###Set VIVO Query API credentials
-Edit api_fx.py and add the username and password of an authorized VIVO user. The root VIVO account has permission by default, but make sure you don't have any security concerns about sending the username and password unencrypted over your network.
+### Set VIVO Query API credentials
+Rename api_settings.example.json to api_settings.json and change the username and password to an authorized VIVO user. The root VIVO account has permission by default, but make sure you don't have any security concerns about sending the username and password unencrypted over your network.
 Also set your api url and namespace. For most installations, you will just have to change the domain at the front of the address.
 
-###Run the script...
-...and hope nothing explodes.
+### Run the script...
+python grabCrossref.py ...and hope nothing explodes.
 
-##Reference material
+## Reference material
 https://wiki.duraspace.org/display/VIVO/The+SPARQL+Query+API
 
 https://github.com/CrossRef/rest-api-doc/blob/master/rest_api.md 
