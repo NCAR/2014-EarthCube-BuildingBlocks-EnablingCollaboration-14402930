@@ -1,6 +1,6 @@
 # UNAVCO
 
-##Project personnel 
+## Project personnel 
 
 Name  | Email | Title | Role
 ------------- | ------------- | ------------- | -------------
@@ -10,6 +10,6 @@ Fran Boler | boler@unavco.org | Project Manager III | Data
 Linda Rowan | rowan@unavco.org | External Affairs Director | Co-PI
 Doug Ertz | ertz@unavco.org | Project Manager III | IT
 
-##What's here?
+## What's here?
 
 This folder is currently serving as a repository for scripts UNAVCO is using to process data before ingest into VIVO.

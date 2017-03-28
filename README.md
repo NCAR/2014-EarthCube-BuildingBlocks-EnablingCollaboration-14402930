@@ -5,7 +5,7 @@ EarthCube Building Blocks: Collaborative Grant: Enabling Scientific Collaboratio
 [NSF#1440293](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1440293&HistoricalAwards=false)
 
 
-##Places
+## Places
 
 ### EarthCube Project Space
 Some of the relevant information for this project can be found on [the EarthCube Project Space](http://workspace.earthcube.org/enabling-scientific-collaboration-and-discovery-through-semantic-connections).

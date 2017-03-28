@@ -9,6 +9,7 @@ from rdflib import Literal, Graph, XSD, URIRef
 from rdflib.namespace import Namespace
 import namespace as ns
 import argparse
+import json
 from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL
 from api_fx import vivo_api_query, uri_gen, new_vcard, sparql_update
 
@@ -41,9 +42,10 @@ KNOWN_ORGS = {'University Of Alaska Fairbanks': 'org420111',
               'U.S. Geological Survey, Cascade Volcano Observator':
               'org686835',
               'Universidad Nacional Pdro Henriquez Urena': 'org774882',
-              'Universite du Quebec a Montreal (UQAM)': 'org198624'}
+              'Universite du Quebec a Montreal (UQAM)': 'org198624',
+              'California State Polytechnic University Pomona': 'org523149'}
 
-REP_NICKNAMES = {'Cliff Muginer': 'Cliff Mugnier',
+REP_NICKNAMES = {'Cliff Muginer': 'Clifford Mugnier',
                  'Daniel Lao Davila': u'Daniel La\u00F3 D\u00E1vila',
                  'Pete LaFemina': 'Peter La Femina',
                  'Michael Starek': 'Michael J. Starek',
@@ -63,7 +65,11 @@ REP_NICKNAMES = {'Cliff Muginer': 'Cliff Mugnier',
                  'G. ESTEBAN VAZQUEZ': 'Guadalupe Esteban Vazquez',
                  'Dr Nick Rosser': 'Nick Rosser',
                  'JOAO MONICO': u'Jo\u00E3o Monico',
-                 'Richard Aster': 'Richard C. Aster'}
+                 'Richard Aster': 'Richard C. Aster',
+                 'Mike Oskin': 'Michael Oskin',
+                 'Alex  Holsteinson': 'Alexander Holsteinson',
+                 'Jose Angel Cibeira Garate':
+                 u'Jose \u00C1ngel Cibeira Urtiaga'}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -119,6 +125,14 @@ log = logging.getLogger(__name__)
 g = Graph(namespace_manager=ns.ns_manager)
 gout = Graph(namespace_manager=ns.ns_manager)
 
+# Open up the amazing time-saving json file (if it exists)
+master_dic = {}
+with open('db.json', "w+") as f:
+    try:
+        master_dic = json.load(f)
+    except:
+        pass
+
 
 def get_member(institution, uri=None):
     ''' Get existing org info using the VIVO query API
@@ -147,13 +161,23 @@ def get_member(institution, uri=None):
                  "PREFIX d: <"+D+"> "
                  "PREFIX foaf:<"+FOAF+"> "
                  "PREFIX vivo: <"+VIVO+"> "
-                 "SELECT ?orgLabel ?rep ?repName ?vCard ?urlObj ?url ?urlRank "
+                 "SELECT ?orgLabel ?rep ?repName ?vCard ?email ?urlObj ?url "
+                 "?urlRank ?gName ?midName ?famName "
                  "WHERE { "
                  "d:"+uri+" rdfs:label ?orgLabel . "
                  "d:"+uri+" a foaf:Organization . "
                  "OPTIONAL{d:"+uri+" obo:RO_0000053 ?memberRole .} "
                  "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
-                 "?rep rdfs:label ?repName . } "
+                 "?rep rdfs:label ?repName . "
+                 "?rep obo:ARG_2000028 ?vcard . "
+                 "?vcard vcard:hasName ?name . "
+                 "?name vcard:givenName ?gName . "
+                 "?name vcard:familyName ?famName . } "
+                 "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
+                 "?rep obo:ARG_2000028 ?vcard . "
+                 "?vcard vcard:hasEmail ?email_obj . "
+                 "?email_obj vcard:email ?email . } "
+                 "OPTIONAL{?name vivo:middleName ?midName . } "
                  "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . } "
                  "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . "
                  " ?vCard vcard:hasURL ?urlObj . "
@@ -171,14 +195,21 @@ def get_member(institution, uri=None):
                  "PREFIX vcard: <"+VCARD+"> "
                  "PREFIX foaf:<"+FOAF+"> "
                  "PREFIX vivo: <"+VIVO+"> "
-                 "SELECT ?org ?orgLabel ?rep ?repName "
-                 "?vCard ?urlObj ?url ?urlRank "
+                 "SELECT ?org ?orgLabel ?rep ?repName ?gName ?midName ?email "
+                 "?email_obj ?famName ?vCard ?urlObj ?url ?urlRank "
                  "WHERE { "
                  "?org rdfs:label ?orgLabel . "
                  "?org a foaf:Organization . "
                  "OPTIONAL{?org obo:RO_0000053 ?memberRole .} "
                  "OPTIONAL{?org vlocal:hasLiaison ?rep . "
-                 "?rep rdfs:label ?repName . } "
+                 "?rep rdfs:label ?repName . "
+                 "?rep obo:ARG_2000028 ?vcard . "
+                 "?vcard vcard:hasName ?name . "
+                 "?name vcard:givenName ?gName . "
+                 "?name vcard:familyName ?famName . } "
+                 "OPTIONAL{?name vivo:middleName ?midName . } "
+                 "OPTIONAL{ ?vcard vcard:hasEmail ?email_obj . "
+                 "?email_obj vcard:email ?email . } "
                  "OPTIONAL{ ?org obo:ARG_2000028 ?vCard . } "
                  "OPTIONAL{ ?org obo:ARG_2000028 ?vCard . "
                  "?vCard vcard:hasURL ?urlObj . "
@@ -202,6 +233,12 @@ def get_member(institution, uri=None):
             q_info['vCard'] = bindings["vCard"]["value"].replace(D, '')
         else:
             q_info['vCard'] = None
+        if "email_obj" in bindings:
+            q_info['email_obj'] = bindings["email_obj"]["value"]
+            q_info['email'] = bindings["email"]["value"]
+            raw_input(q_info)
+        else:
+            q_info['email'] = None
         if "url" in bindings:
             q_info['url'] = bindings["url"]["value"].replace(D, '')
             if "datatype" in bindings["url"]:
@@ -228,8 +265,16 @@ def get_member(institution, uri=None):
             q_info['repURI'] = bindings["rep"]["value"].replace(D, '')
         else:
             q_info['repURI'] = None
-        if "repName" in bindings:
-            q_info['repName'] = bindings["repName"]["value"]
+        if 'gName' in bindings:
+            if 'midName' in bindings:
+                q_info['repName'] = ' '.join([bindings["gName"]["value"],
+                                             bindings["midName"]["value"],
+                                             bindings["famName"]["value"]])
+            else:
+                q_info['repName'] = ' '.join([bindings["gName"]["value"],
+                                             bindings["famName"]["value"]])
+        elif "repName" in bindings:
+            q_info['repName'] = bindings["repName"]["value"].split(', ', 1)
         else:
             q_info['repName'] = None
 
@@ -237,6 +282,99 @@ def get_member(institution, uri=None):
         return q_info
     else:
         return None
+
+
+def get_person(name, g=None):
+    if not name:
+        return {'id': None}  # Don't trick me into doing all this work!
+    # Hope there aren't any father-son geodesy teams
+    name = (name.replace("'", "\\'").replace(" Jr.", "").
+            replace(" Sr.", "").replace(" II", ""))
+
+    # The first pass ignores the middle name in case NSF has none but VIVO does
+    query1 = ("PREFIX rdf: <"+RDF+"> "
+              "PREFIX rdfs: <"+RDFS+"> "
+              "PREFIX foaf: <"+FOAF+"> "
+              "PREFIX vcard: <"+VCARD+"> "
+              "PREFIX vivo: <"+VIVO+"> "
+              "PREFIX obo: <"+OBO+"> "
+              "SELECT ?per "
+              "WHERE { "
+              "?per obo:ARG_2000028 ?vcard . "
+              "?vcard vcard:hasName ?nameobj . "
+              "?nameobj vcard:familyName ?famname . "
+              "?nameobj vcard:givenName ?givname . "
+              "BIND(CONCAT(?givname, ?famname) AS ?fullname) "
+              "BIND(replace(replace(lcase(STR(?fullname)), '\\\.', ''),' ','')"
+              " as ?fixname) "
+              "FILTER (?fixname = '" + name.lower().replace(
+                                                            ' ', '').replace(
+                                                            '.', '') + "')"
+              "} ")
+
+    query2 = ("PREFIX rdf: <"+RDF+"> "
+              "PREFIX rdfs: <"+RDFS+"> "
+              "PREFIX foaf: <"+FOAF+"> "
+              "PREFIX vcard: <"+VCARD+"> "
+              "PREFIX vivo: <"+VIVO+"> "
+              "PREFIX obo: <"+OBO+"> "
+              "SELECT ?per "
+              "WHERE { "
+              "?per obo:ARG_2000028 ?vcard . "
+              "?vcard vcard:hasName ?nameobj . "
+              "?nameobj vcard:familyName ?famname . "
+              "?nameobj vcard:givenName ?givname . "
+              "OPTIONAL {?nameobj vivo:middleName ?midname . } "
+              "BIND(COALESCE(?midname, '') As ?midname1) "
+              "BIND(CONCAT(?givname, ?midname1, ?famname) AS ?fullname) "
+              "BIND(replace(replace(lcase(STR(?fullname)), '\\\.', ''),' ','')"
+              " as ?fixname) "
+              "FILTER (?fixname = '" + name.lower().replace(' ', '').replace(
+                                                            '.', '') + "')"
+              "} ")
+
+    # Somebody might go by their middle name.
+    query3 = ("PREFIX rdf: <"+RDF+"> "
+              "PREFIX rdfs: <"+RDFS+"> "
+              "PREFIX foaf: <"+FOAF+"> "
+              "PREFIX vcard: <"+VCARD+"> "
+              "PREFIX vivo: <"+VIVO+"> "
+              "PREFIX obo: <"+OBO+"> "
+              "SELECT ?per "
+              "WHERE { "
+              "?per obo:ARG_2000028 ?vcard . "
+              "?vcard vcard:hasName ?nameobj . "
+              "?nameobj vivo:middleName ?midname . "
+              "?nameobj vcard:familyName ?famname . "
+              "BIND(CONCAT(?midname, ?famname) AS ?fullname) "
+              "BIND(replace(replace(lcase(STR(?fullname)), '\\\.', ''),' ','')"
+              " as ?fixname) "
+              "FILTER (?fixname = '" + name.lower().replace(' ', '').replace(
+                                                            '.', '') + "')"
+              "} ")
+
+    if g:  # Execute the query on the local employee graph first
+        qres = g.query(query1)
+        if not qres:
+            qres = g.query(query2)
+        if not qres:
+            qres = g.query(query3)
+        for row in qres:
+            person = {'id': (row[0].replace(D, ''))}
+            return person
+
+    bindings = vivo_api_query(query1)  # Not found in local graph, try api
+    if not bindings:
+        bindings = vivo_api_query(query2)
+    if not bindings:
+        bindings = vivo_api_query(query3)
+    if bindings and 'per' in bindings[0]:
+        person = {'id': bindings[0]['per']['value'].replace(D, '')}
+
+    else:
+        person = {'id': None}
+
+    return person
 
 
 # Get and parse the XML file
@@ -336,6 +474,8 @@ for element in xml.iter():
                     q_info = get_member(None, user_input)
             attempt += 1
 
+        # Too many of the URLs on the member list are broken, ignore for now
+        '''
         # Create triples for the organization's website url
         if info['Website']:
             # Don't do anything if the URLs are the same
@@ -371,9 +511,18 @@ for element in xml.iter():
                 g.add((D[url_uri], VCARD.url, Literal(info['Website'],
                        datatype=XSD.anyURI)))  # create the URL
                 g.add((D[url_uri], VIVO.rank, Literal("1", datatype=XSD.int)))
+        '''
 
         # Create triples for the member representative
         while True:
+            if rep_uri:
+                # print 'hi '+rep_uri
+                # print 'what about '+master_dic[info['Inst']]
+                if info['Inst'] in master_dic:
+                    if rep_uri == master_dic[info['Inst']]:
+                        log.debug('Information for ' + info['Inst'] +
+                                  ' has not changed.')
+                        break  # Nothing has changed, easy peasy
             if info['Rep']:
                 if info['Rep'] in REP_NICKNAMES:
                     log.debug(u'Using nickname {} in place of {}'.format(
@@ -381,13 +530,17 @@ for element in xml.iter():
                     # Change the nickname to the real name
                     info['Rep'] = REP_NICKNAMES[info['Rep']]
 
-                if rep_name:
-                    rep_name = rep_name.split(', ', 1)
-                    rep_name = rep_name[1] + ' ' + rep_name[0]
+                # Try to match to person in VIVO database
+                per_uri = get_person(info['Rep'])
+                if per_uri['id']:
+                    log.debug(u'{} found in database with uri {}.'
+                              .format(info['Rep'], per_uri['id']))
+                    per_uri = per_uri['id']
+                else:
+                    per_uri = None
 
-                    # Not equal, remove the old liasion triples
-                    if (info['Rep'].replace(' ', '').lower() !=
-                            rep_name.replace(' ', '').lower()):
+                if rep_name:  # Rep is already assigned in VIVO
+                    if per_uri != rep_uri:
                         gout.add((D[org_uri], VLOCAL.hasLiaison, D[rep_uri]))
                         gout.add((D[UNAVCO_ID], VLOCAL.hasLiaison, D[rep_uri]))
                         if info['Type'] == 'Member Institution':
@@ -397,38 +550,45 @@ for element in xml.iter():
                                       VLOCAL.AssociateMemberRep))
                         log.info(info['Rep'] + ' is not the same as ' +
                                  rep_name)
+                        master_dic[info['Inst']] = per_uri
 
                     # They are identical, exit the loop
                     else:
+                        master_dic[info['Inst']] = per_uri
                         break
 
-                # Create triples for a new foaf:Person
-                log.info('Updating '+institution+' representative to ' +
-                         info['Rep'])
-                new_rep_name = info['Rep'].rsplit(' ', 1)
-                first_name = new_rep_name[0]
-                last_name = new_rep_name[1]
-                rep_label = last_name+', ' + first_name
+                if not per_uri:
+                    # Create triples for a new foaf:Person
+                    new_rep_name = info['Rep'].rsplit(' ', 1)
+                    first_name = new_rep_name[0].strip()
+                    last_name = new_rep_name[1].strip()
+                    rep_label = last_name+', ' + first_name
 
-                per_uri = uri_gen('per')
-                g.add((D[per_uri], RDF.type, FOAF.Person))
-                g.add((D[per_uri], RDFS.label, Literal(rep_label)))
+                    per_uri = uri_gen('per')
+                    g.add((D[per_uri], RDF.type, FOAF.Person))
+                    g.add((D[per_uri], RDFS.label, Literal(rep_label)))
 
-                vcard_uri = new_vcard(first_name, last_name, None, g)
+                    vcard_uri = new_vcard(first_name, last_name, None, g)
+                    g.add((D[per_uri], OBO.ARG_2000028, D[vcard_uri]))
+                    log.info('Added triples for new person with uri ' +
+                             per_uri)
+                    master_dic[info['Inst']] = per_uri
 
-                g.add((D[per_uri], OBO.ARG_2000028, D[vcard_uri]))
                 g.add((D[org_uri], VLOCAL.hasLiaison, D[per_uri]))
                 g.add((D[UNAVCO_ID], VLOCAL.hasLiaison, D[per_uri]))
                 if info['Type'] == 'Member Institution':
                     g.add((D[per_uri], RDF.type, VLOCAL.MemberRep))
                 else:
                     g.add((D[per_uri], RDF.type, VLOCAL.AssociateMemberRep))
-                log.info('Added triples for new person with uri ' + per_uri)
+                log.info('Updating '+institution+' representative to ' +
+                         info['Rep'] + ' with uri '+per_uri)
                 break  # Our work here is done
             else:
                 break
 
 timestamp = str(datetime.now())[:-7]
+with open("db.json", "w") as f:
+    f.write(json.dumps(master_dic, indent=4))
 
 if len(g) > 0:
     try:

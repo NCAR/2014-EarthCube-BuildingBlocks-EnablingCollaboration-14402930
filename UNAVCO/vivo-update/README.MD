@@ -10,7 +10,7 @@ $ python members.py
 
 Set up a cron job and run the script automatically with the --api and -a flags set.
 
-##Options
+## Options
 ```
 usage: members.py [-h] [--api] [-a] [-f {xml,n3,turtle,nt,pretty-xml,trix}]
 
