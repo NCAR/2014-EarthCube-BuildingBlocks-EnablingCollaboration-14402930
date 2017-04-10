@@ -17,8 +17,7 @@
 # Last modified Apr. 10, 2017
 
 https://library.ucar.edu/earthcollab/schema a owl:Ontology ;
-	rdfs:label "EarthCollab Schema"@en-US ;
-	vitro:ontologyPrefixAnnot "ec"^^xsd:string .
+	rdfs:label "EarthCollab Schema"@en-US .
 
 vivo:Dataset a owl:Class ;
 	rdfs:label "Dataset" ;
