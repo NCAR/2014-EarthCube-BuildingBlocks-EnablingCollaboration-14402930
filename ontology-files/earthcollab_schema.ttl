@@ -1,10 +1,7 @@
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dctype: <http://purl.org/dc/dcmitype/> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix bibo: <http://purl.org/ontology/bibo/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix vivo: <http://vivoweb.org/ontology/core#> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
@@ -14,9 +11,7 @@
 @prefix wgs84: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix ec: <https://library.ucar.edu/earthcollab/schema#> .
 
-# Last modified Apr. 10, 2017
-
-https://library.ucar.edu/earthcollab/schema a owl:Ontology ;
+<https://library.ucar.edu/earthcollab/schema> a owl:Ontology ;
 	rdfs:label "EarthCollab Schema"@en-US .
 
 vivo:Dataset a owl:Class ;
@@ -67,14 +62,15 @@ ec:sourceInstrumentFor a owl:ObjectProperty ;
 	rdfs:label "Source Instrument For" ;
 	rdfs:comment "Inverse property of gcis:sourceInstrument, needed to enable VIVO to display the relationship on both the instrument and dataset page." ;
 	owl:inverseOf gcis:sourceInstrument ;
-	rdfs:domain gcis:Instrument
+	rdfs:domain gcis:Instrument ;
 	rdfs:range gcis:Dataset .
 
 ec:Station a owl:Class ;
         rdfs:label "Station"@en-US ;
         rdfs:subClassOf obo:BFO_0000029 , wgs84:SpatialThing .
-             
+
 wgs84:SpatialThing a owl:Class ;
       rdfs:label "SpatialThing"@en-US ;
       rdfs:subClassOf owl:Thing ;
       obo:IAO_0000115 "Anything with spatial extent, i.e. size, shape, or position.  e.g. people, places, bowling balls, as well as abstract areas like cubes."^^xsd:string .
+
