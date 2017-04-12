@@ -30,6 +30,13 @@ ec:sourcePlatform a owl:ObjectProperty ;
 	rdfs:domain gcis:Dataset ;
 	rdfs:range gcis:Platform .
 
+ec:sourcePlatformFor a owl:ObjectProperty ;
+	rdfs:label "Source Platform For" ;
+	rdfs:comment "Inverse property of gcis:sourcePlatform, needed to enable VIVO to display the relationship on both the platform and dataset page." ;
+	owl:inverseOf ec:sourcePlatform ;
+	rdfs:domain gcis:Platform ;
+	rdfs:range gcis:Dataset .
+
 ec:Parameter a owl:Class;
 	rdfs:label "Parameter" ;
 	rdfs:comment "A measured physical property." ;
