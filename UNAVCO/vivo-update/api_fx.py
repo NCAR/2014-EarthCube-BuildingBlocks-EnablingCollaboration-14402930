@@ -62,7 +62,9 @@ def vivo_api_query(query):
 
 
 # Generic CONSTRUCT query
-def vivo_api_construct(query, g):
+def vivo_api_construct(query, g=None):
+    if not g:
+        g = Graph(namespace_manager=ns.ns_manager)
     data = load_settings()
     try:
         EMAIL = data["api_user"]
@@ -227,3 +229,61 @@ def call_nsf_api(keyword, datestart, offset=0, rpp=25):
 
             bindings = None
         return bindings
+
+
+# Return the crossref metadata, given a doi
+def crossref_lookup(doi):
+    tries = 0
+    while True:
+        r = requests.get('http://api.crossref.org/works/{}'.format(doi))
+        tries += 1
+        if r.status_code == 404:
+            logging.debug('{} not found on cross ref'.format(doi))
+            # Not a crossref DOI.
+            return None
+        if r.status_code == 500:
+            logging.debug('{} has a redirect, cant parse...'.format(doi))
+            return None
+        if r:
+            return r.json()["message"]
+        if r.status_code == 502 and tries < 6:
+            logging.info('Server error, waiting 10 seconds before retry...')
+            sleep(10)
+        else:
+            raise Exception('Request to fetch DOI {} returned {}'
+                            .format(doi, r.status_code))
+
+
+def grab_corpus(doi):
+    API_URL = 'http://opencitations.net/sparql'
+    payload = {'query': 'PREFIX datacite: <http://purl.org/spar/datacite/> '
+               'PREFIX literal: '
+               '<http://www.essepuntato.it/2010/06/literalreification/> '
+               'PREFIX cito: <http://purl.org/spar/cito/> '
+               'SELECT ?pub ?doi WHERE { ?pub_in datacite:hasIdentifier ?doi_in . '
+               '?doi_in literal:hasLiteralValue "' + doi.lower() + '" . '
+               '?pub_in cito:cites ?pub . '
+               '?pub datacite:hasIdentifier ?doi_obj . '
+               '?doi_obj literal:hasLiteralValue ?doi . '
+               '?doi_obj datacite:usesIdentifierScheme	datacite:doi . } ',
+               'format': 'json'}
+    r = requests.get(API_URL, params=payload)
+    try:
+        r = r.json()
+    except ValueError:
+        logging.info('No response from Open Citations... ')
+    bindings = r["results"]["bindings"]
+    dois = []
+    for bindings in bindings:
+        if 'doi' in bindings:
+            dois.append(bindings['doi']['value'])
+    return dois
+
+
+# This convenience method returns the first result from a generator
+def peek(generator):
+    try:
+        first = next(generator)
+    except StopIteration:
+        return None
+    return first
