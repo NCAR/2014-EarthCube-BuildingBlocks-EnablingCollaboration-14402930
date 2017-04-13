@@ -165,14 +165,20 @@ def crossref_lookup(doi):
         r = requests.get('http://api.crossref.org/works/{}'.format(doi))
         tries += 1
         if r.status_code == 404:
-            print 'doi not found on cross ref'
+            logging.debug('{} not found on cross ref'.format(doi))
             # Not a crossref DOI.
+            return None
+        if r.status_code == 500:
+            logging.debug('{} has a redirect, cant parse...'.format(doi))
             return None
         if r:
             return r.json()["message"]
         if r.status_code == 502 and tries < 6:
-            print 'Server error, waiting 10 seconds before retry...'
+            logging.info('Server error, waiting 10 seconds before retry...')
             sleep(10)
+        if r.status_code == 429 and tries < 6:
+            logging.info('Too many requests, retrying in 20 seconds...')
+            sleep(20)
         else:
             raise Exception('Request to fetch DOI {} returned {}'
                             .format(doi, r.status_code))
