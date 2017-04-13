@@ -244,23 +244,22 @@ if isinstance(results, list):
         if r[1]:
             gout = gout + r[1]
 else:
-    log.debug(r)
-    print(r.serialize(format="turtle"))
+    log.debug('Error processing RDF')
 
 if len(g) > 0:
     try:
         with open("rdf/cites-" + timestamp + "-in.ttl", "w") as f:
             f.write(g.serialize(format=args.format))
-            print('Wrote RDF to rdf/cites-' + timestamp +
+            log.info('Wrote RDF to rdf/cites-' + timestamp +
                   '-in.ttl in ' + args.format + ' format.')
     except IOError:
         # Handle the error.
-        print("Failed to write RDF file. "
+        log.error("Failed to write RDF file. "
               "Does a directory named 'rdf' exist?")
-        print("The following RDF was not saved: \n" +
+        log.warning("The following RDF was not saved: \n" +
               g.serialize(format=args.format))
 else:
-    print('No triples to INSERT.')
+    log.info('No triples to INSERT.')
 
 if len(gout) > 0:
     try:
