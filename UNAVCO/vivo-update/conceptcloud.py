@@ -62,7 +62,7 @@ def get_concepts_in_vivo():
              "PREFIX obo: <"+OBO+"> "
              "PREFIX vlocal: <"+VLOCAL+"> "
 
-             "SELECT ?theURI (str(?label) as ?name) (COUNT(?label) as ?size) "
+             "SELECT DISTINCT ?theURI (str(?label) as ?name) (COUNT(?label) as ?size) "
              "WHERE { "
              "{?person vlocal:hasExpertise ?theURI} "
              "UNION{?person vivo:hasResearchArea ?theURI} "
