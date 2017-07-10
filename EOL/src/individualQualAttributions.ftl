@@ -7,7 +7,7 @@
     <ul id="qualifiedAttribution-Attribution-List" class="property-list" role="list" displaylimit="5">
         <#list qualAttDatasets as resultRow>
             <li role="listitem">
-                <a href="${urls.base}/vivo/individual?uri=${individual.uri}&datasetURI=${resultRow["datasetURI"]}" title="name">
+                <a href="${urls.base}/individual?uri=${resultRow["datasetURI"]}" title="name">
                     ${resultRow["dlabel"]}
                 </a>
             </li>
