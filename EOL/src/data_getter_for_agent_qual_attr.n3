@@ -1,0 +1,24 @@
+@prefix display: <http://vitro.mannlib.cornell.edu/ontologies/display/1.1#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://www.w3.org/ns/prov#Agent> display:hasDataGetter display:qualifiedAttributionDataGetter .
+
+display:qualifiedAttributionDataGetter
+    a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.SparqlQueryDataGetter> ;
+    display:saveToVar "qualAttDatasets" ;
+    display:query """
+    PREFIX p4: <http://www.w3.org/ns/prov#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX gcis: <http://data.globalchange.gov/gcis.owl#>
+
+    SELECT ?roleURI (str(?nameAttr) AS ?clabel) (str(?dname) AS ?dlabel) ?datasetURI
+    WHERE
+    {
+        ?individualURI gcis:isAuthorOf ?datasetURI . 
+        ?datasetURI p4:qualifiedAttribution ?roleURI .
+        ?roleURI rdfs:label ?nameAttr .
+        ?datasetURI rdfs:label ?dname .
+    }
+    ORDER BY ?datasetURI
+    """ .   
