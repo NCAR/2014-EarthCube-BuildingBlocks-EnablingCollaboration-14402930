@@ -1,5 +1,4 @@
 <#if qualAttDatasets?has_content>
-TEST DG text !@#$
   <article class="property" role="article">
     <h3 id="qualifiedAttribution" title="">
         qualifiedAttribution
