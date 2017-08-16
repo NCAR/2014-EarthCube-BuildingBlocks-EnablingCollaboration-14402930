@@ -8,17 +8,24 @@ display:qualifiedAttributionDataGetter
     a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.SparqlQueryDataGetter> ;
     display:saveToVar "qualAttDatasets" ;
     display:query """
-    PREFIX p4: <http://www.w3.org/ns/prov#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX gcis: <http://data.globalchange.gov/gcis.owl#>
+        PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:     <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX vivo:     <http://vivoweb.org/ontology/core#>
+        PREFIX prov: <http://www.w3.org/ns/prov#>
+        PREFIX vitro: <http://vitro.mannlib.cornell.edu/ns/vitro/0.7#>
 
-    SELECT ?roleURI (str(?nameAttr) AS ?clabel) (str(?dname) AS ?dlabel) ?datasetURI
-    WHERE
-    {
-        ?individualURI gcis:isAuthorOf ?datasetURI . 
-        ?datasetURI p4:qualifiedAttribution ?roleURI .
-        ?roleURI rdfs:label ?nameAttr .
-        ?datasetURI rdfs:label ?dname .
-    }
-    ORDER BY ?datasetURI
-    """ .   
+        SELECT ?roleLabel ?dataset ?dname ?typeString
+        WHERE
+        {
+          ?dataset prov:qualifiedAttribution ?qa .
+          ?qa prov:agent ?individualURI .
+          ?qa prov:hadRole ?role .
+          ?role rdfs:label ?roleLabel .
+          ?dataset rdfs:label ?dname .
+          ?dataset vitro:mostSpecificType ?vType .
+          ?vType rdfs:label ?typeString
+         FILTER(langMatches(lang(?typeString),"EN"))
+        }
+        GROUP BY ?dname ?dataset ?roleLabel ?typeString
+        ORDER BY ?dname ?dataset ?roleLabel ?typeString
+    """ .
