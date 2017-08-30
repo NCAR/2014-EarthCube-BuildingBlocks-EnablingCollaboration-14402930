@@ -1,5 +1,5 @@
-# The goal here is to query the NSF grants API. Automate this with cron jobs
-# to keep our Connect UNAVCO database current.
+# This script queries both Connect UNAVCO and UNAVCO station metadata API.
+# Automate this with cron jobs to keep our Connect UNAVCO database current.
 
 import requests
 import logging
@@ -11,10 +11,9 @@ import namespace as ns
 import argparse
 import csv
 import time
-from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL, WGS84, EC
+from namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF,
+                       VLOCAL, WGS84, EC)
 from api_fx import (vivo_api_query, uri_gen, new_vcard, sparql_update)
-
-
 
 
 if __name__ == '__main__':
@@ -23,18 +22,12 @@ if __name__ == '__main__':
                         action="store_true", help="Send the newly created "
                         "triples to VIVO using the update API. Note, there "
                         "is no undo button! You have been warned!")
-    parser.add_argument("-a", "--auto", default=False, dest="auto_mode",
-                        action="store_true", help="Run in auto mode. "
-                        "Unknown organizations and people will automatically "
-                        "be created instead of asking the user for input.")
     parser.add_argument("-f", "--format", default="turtle", choices=["xml",
                         "n3", "turtle", "nt", "pretty-xml", "trix"], help="The"
                         " RDF format for serializing. Default is turtle.")
-
     parser.add_argument("--debug", action="store_true", help="Set logging "
                         "level to DEBUG.")
 
-    # Parse
     args = parser.parse_args()
 
 # Set up logging to file and console
@@ -71,7 +64,7 @@ log = logging.getLogger(__name__)
 g = Graph(namespace_manager=ns.ns_manager)
 gout = Graph(namespace_manager=ns.ns_manager)
 
-# If you're going for station retire dates, change the last line to "} FILTER NOT EXISTS {?station vivo:dateTimeValue ?dtval. }} ")
+
 def get_stations_in_vivo():
     query = ("PREFIX rdf: <"+RDF+"> "
              "PREFIX vcard: <"+VCARD+"> "
@@ -86,13 +79,18 @@ def get_stations_in_vivo():
              "?station a ec:Station . "
              "?station rdfs:label ?stationLabel . "
              "?station vlocal:has4CharID ?id "
+             "OPTIONAL {?station vivo:dateTimeValue ?dtval. "
+             "?dtval vivo:dateTime ?date . }"
              "}} ")
 
     gstat = vivo_api_query(query=query)
-    in_vivo_list = []
+    in_vivo_list = {}
 
     for station in gstat:
-        in_vivo_list.append(station['id']['value'])
+        if 'date' in station:
+            in_vivo_list[station['id']['value']] = station['date']['value']
+        else:
+            in_vivo_list[station['id']['value']] = None
     return in_vivo_list
 
 
@@ -108,21 +106,21 @@ def get_station_list():
         List of 4-character station IDs
 
     '''
-    
+
     API_URL = ('http://web-services.unavco.org:80/internalWS/gps/'
-              'metadata/name/sites/beta')
+               'metadata/name/sites/beta')
     headers = {'Accept': 'application/json'}
 
     r = requests.get(API_URL, headers=headers)
-                     
+
     try:
         json = r.json()
         return json['stationnames']
     except ValueError:
-        logging.exception("Nothing returned from query API. "
-                          "Ensure the API address is correct.")
+        log.exception("Nothing returned from query API. "
+                      "Ensure the API address is correct.")
         return None
-        
+
 
 def get_station_meta(FourChID=None):
     API_URL = ('http://web-services.unavco.org:80/metadata/stationlist/'
@@ -130,110 +128,114 @@ def get_station_meta(FourChID=None):
     headers = {'Accept': 'application/json'}
 
     r = requests.get(API_URL, headers=headers)
-                     
+
     try:
         json = r.json()
         return json
     except ValueError:
-        logging.exception("Nothing returned from query API. "
-                          "Ensure the API address is correct.")
+        log.exception("Nothing returned from query API. "
+                      "Ensure the API address is correct.")
         return None
-        
+
+
 def get_active_stations():
     active_stations = []
 
     API_URL = ('http://web-services.unavco.org:80/internalWS/gps/metadata/'
-               'stationcoordinate/sites/beta?refframe=igs08&verboseheader=false&stddev=false')
+               'stationcoordinate/sites/beta?refframe=igs08&verboseheader'
+               '=false&stddev=false')
     headers = {'Accept': 'text/csv'}
 
     r = requests.get(API_URL, headers=headers)
     data = r.text
-                     
+
     try:
         csv_f = csv.reader(data.splitlines(), delimiter=',')
-        next(csv_f, None)  #skip the headers
+        next(csv_f, None)  # skip the headers
         for row in csv_f:
             FourChID = row[0]
             active_stations.append(FourChID)
         return active_stations
     except ValueError:
-        logging.exception("Nothing returned from query API. "
-                          "Ensure the API address is correct.")
+        log.exception("Nothing returned from query API. "
+                      "Ensure the API address is correct.")
         return None
-        
-        
+
+
 def get_gsac_stations():
     active_stations = []
 
     API_URL = ('http://www.unavco.org/gsacws/gsacapi/site/search')
     payload = {'site.createdate.from': '1980-12-01', 'output': 'site.json',
                'limit': '50000', 'site.type': 'gnss.site.continuous'}
-    
-    r = requests.get(API_URL, params = payload)
-                     
+
+    r = requests.get(API_URL, params=payload)
+
     try:
         r = r.json()
         for station in r:
             active_stations.append(station['ShortName'])
-        return r,active_stations
+        return r, active_stations
     except ValueError:
-        logging.exception("Nothing returned from query API. "
-                          "Ensure the API address is correct.")
-        return None     
+        log.exception("Nothing returned from query API. "
+                      "Ensure the API address is correct.")
+        return None
 
 
-r,active_stations = get_gsac_stations()
+r, active_stations = get_gsac_stations()
 in_vivo_list = get_stations_in_vivo()
 donethat = []
 
 for station in r:
     chID = station['ShortName']
-    '''
-    #Code here adds decommisioning dates for stations
-    if station['Status']['Id'] == 'decomissioned' and station['ShortName'] in in_vivo_list and station['ShortName'] not in donethat:
-        chID = station['ShortName']
+
+    # Station is not in VIVO and has not already been processed
+    if chID not in in_vivo_list and chID not in donethat:
+        fourChID = chID
+        # Add a prefix if the chID starts with a number
+        if chID[0].isdigit():
+            chID = 'n' + chID
+
+        g.add((D[chID], RDF.type, EC.Station))
+        g.add((D[chID], VLOCAL.has4CharID, Literal(fourChID,
+               datatype=XSD.string)))
+
+        if 'LongName' in station:
+            title = station['LongName']
+        else:
+            title = station['ShortName']
+        g.add((D[chID], RDFS.label, Literal(title, datatype=XSD.string)))
+
+        if 'EarthLocation' in station:
+            lat = station['EarthLocation']['Latitude']
+            lon = station['EarthLocation']['Longitude']
+            g.add((D[chID], WGS84.lat, Literal(lat, datatype=XSD.decimal)))
+            g.add((D[chID], WGS84.long, Literal(lon, datatype=XSD.decimal)))
+
+        donethat.append(chID)
+
+    # Station is in VIVO and is decommissioned, but not listed so in VIVO
+    elif(in_vivo_list[chID] is None and station['Status']['Id'] ==
+         'decomissioned' and station['ShortName'] not in donethat):
         dt = station['ToDate']
         # Add a prefix if the chID starts with a number
         if chID[0].isdigit():
             chID = 'n' + chID
-            
+
         dt = time.strptime(dt, "%b %d, %Y %I:%M:%S %p")
         dt = time.strftime("%Y-%m-%dT%H:%M:%S", dt)
-            
+
         dt_uri = uri_gen('n', g)
 
         g.add((D[chID], VIVO.dateTimeValue, D[dt_uri]))
         g.add((D[dt_uri], RDF.type, VIVO.DateTimeValue))
-        g.add((D[dt_uri], VIVO.dateTime, Literal(dt,datatype=XSD.dateTime)))
+        g.add((D[dt_uri], VIVO.dateTime, Literal(dt, datatype=XSD.dateTime)))
         g.add((D[dt_uri], VIVO.dateTimePrecision, VIVO.yearMonthDayPrecision))
-    
-        donethat.append(chID)
-        print station['ShortName']+' '+station['ToDate']
 
-    '''
-    if chID not in in_vivo_list and chID not in donethat:        
-        # Add a prefix if the chID starts with a number
-        if chID[0].isdigit():
-            chID = 'n' + chID
-        
-        g.add((D[chID], RDF.type, EC.Station))
-        g.add((D[chID], VLOCAL.has4CharID, Literal(chID,datatype=XSD.string)))
-        
-        if 'LongName' in station:    
-            title = station['LongName']
-        else:
-            title = station['ShortName']
-        g.add((D[chID], RDFS.label, Literal(title,datatype=XSD.string)))
-        
-        if 'EarthLocation' in station:
-            lat = station['EarthLocation']['Latitude']
-            lon = station['EarthLocation']['Longitude']
-            g.add((D[chID], WGS84.lat, Literal(lat,datatype=XSD.decimal)))
-            g.add((D[chID], WGS84.long, Literal(lon,datatype=XSD.decimal)))
-            
         donethat.append(chID)
-    
-    
+        log.info("Retired: {} on {}".format(station['ShortName'],
+                                            station['ToDate']))
+
 timestamp = str(datetime.now())[:-7]
 
 if len(g) > 0:
