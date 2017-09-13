@@ -1,0 +1,145 @@
+# $This file is distributed under the terms of the license in /doc/license.txt$ 
+
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix display: <http://vitro.mannlib.cornell.edu/ontologies/display/1.1#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix core: <http://vivoweb.org/ontology/core#> .
+@prefix vivoweb: <http://vivoweb.org/ontology#> .
+@prefix afn:  <http://jena.hpl.hp.com/ARQ/function#> .
+
+ 
+##n3 for external entities
+
+#FOAF: Person
+# Using this for now
+<http://xmlns.com/foaf/0.1/Person> display:hasDataGetter display:getSameAsEntityPublications;  
+	display:hasDataGetter display:getSameAsEntityPositions;
+	display:hasDataGetter display:getSameAsEntityPrimaryEmail;
+	display:hasDataGetter display:getSameAsEntityPhone;
+	display:hasDataGetter display:getSameAsEntityAdditionalEmail.
+
+#External entity - get publications
+#Query: Retrieve the person who is same AS this person
+#Uses a made up class 'external entity'
+display:getSameAsEntityPublications    a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.ExternalEntityDataGetter>;
+    display:saveToVar "externalPublications";
+    display:selectedPropertyForDisplay core:relatedBy;
+    display:selectedPropertyForDisplayDomain <http://xmlns.com/foaf/0.1/Person>;
+    display:selectedPropertyForDisplayRange core:Authorship;
+    display:query 
+        """
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX core: <http://vivoweb.org/ontology/core#>
+      PREFIX afn:  <http://jena.hpl.hp.com/ARQ/function#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX vcard:  <http://www.w3.org/2006/vcard/ns#>
+      SELECT ?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
+      WHERE {  
+         ?individualURI owl:sameAs ?externalURI . 
+         ?externalURI rdf:type core:ExternalEntity. 
+         ?externalURI core:externalServiceDefinition ?externalServiceURI . 
+         ?externalServiceURI core:externalURL ?externalServiceURL . 
+         ?externalServiceURI rdfs:label ?externalServiceName .  
+      } 
+        """ .
+        
+###Get positions
+display:getSameAsEntityPositions a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.ExternalEntityDataGetter>;
+    display:saveToVar "externalPositions";
+    display:selectedPropertyForDisplay core:relatedBy;
+    display:selectedPropertyForDisplayDomain <http://xmlns.com/foaf/0.1/Person>;
+    display:selectedPropertyForDisplayRange core:Position;
+    display:query 
+        """
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX core: <http://vivoweb.org/ontology/core#>
+      PREFIX afn:  <http://jena.hpl.hp.com/ARQ/function#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX vcard:  <http://www.w3.org/2006/vcard/ns#>
+      SELECT ?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
+      WHERE {  
+         ?individualURI owl:sameAs ?externalURI . 
+         ?externalURI rdf:type core:ExternalEntity. 
+         ?externalURI core:externalServiceDefinition ?externalServiceURI . 
+         ?externalServiceURI core:externalURL ?externalServiceURL . 
+         ?externalServiceURI rdfs:label ?externalServiceName .  
+      } 
+        """ .
+        
+ #Contact info: primary email address
+ display:getSameAsEntityPrimaryEmail a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.ExternalEntityDataGetter>;
+    display:saveToVar "primaryEmail";
+    display:selectedPropertyForDisplay <http://purl.obolibrary.org/obo/ARG_2000028>;
+    display:selectedPropertyForDisplayDomain <http://xmlns.com/foaf/0.1/Person>;
+    display:selectedPropertyForDisplayRange <http://www.w3.org/2006/vcard/ns#Work>;
+    display:query 
+        """
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX core: <http://vivoweb.org/ontology/core#>
+      PREFIX afn:  <http://jena.hpl.hp.com/ARQ/function#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX vcard:  <http://www.w3.org/2006/vcard/ns#>
+      SELECT ?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
+      WHERE {  
+         ?individualURI owl:sameAs ?externalURI . 
+         ?externalURI rdf:type core:ExternalEntity. 
+         ?externalURI core:externalServiceDefinition ?externalServiceURI . 
+         ?externalServiceURI core:externalURL ?externalServiceURL . 
+         ?externalServiceURI rdfs:label ?externalServiceName .  
+      } 
+        """ .
+ #Contact info: phone
+  display:getSameAsEntityPhone a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.ExternalEntityDataGetter>;
+    display:saveToVar "phone";
+    display:selectedPropertyForDisplay <http://purl.obolibrary.org/obo/ARG_2000028>;
+    display:selectedPropertyForDisplayDomain <http://xmlns.com/foaf/0.1/Person>;
+    display:selectedPropertyForDisplayRange <http://www.w3.org/2006/vcard/ns#Telephone>;
+    display:query 
+        """
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX core: <http://vivoweb.org/ontology/core#>
+      PREFIX afn:  <http://jena.hpl.hp.com/ARQ/function#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX vcard:  <http://www.w3.org/2006/vcard/ns#>
+      SELECT ?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
+      WHERE {  
+         ?individualURI owl:sameAs ?externalURI . 
+         ?externalURI rdf:type core:ExternalEntity. 
+         ?externalURI core:externalServiceDefinition ?externalServiceURI . 
+         ?externalServiceURI core:externalURL ?externalServiceURL . 
+         ?externalServiceURI rdfs:label ?externalServiceName .  
+      } 
+        """ .
+ #Contact info: additional email
+  display:getSameAsEntityAdditionalEmail a <java:edu.cornell.mannlib.vitro.webapp.utils.dataGetter.ExternalEntityDataGetter>;
+    display:saveToVar "additionalEmail";
+    display:selectedPropertyForDisplay <http://purl.obolibrary.org/obo/ARG_2000028>;
+    display:selectedPropertyForDisplayDomain <http://xmlns.com/foaf/0.1/Person>;
+    display:selectedPropertyForDisplayRange <http://www.w3.org/2006/vcard/ns#Email>;
+    display:query 
+        """
+      PREFIX owl: <http://www.w3.org/2002/07/owl#>
+      PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX core: <http://vivoweb.org/ontology/core#>
+      PREFIX afn:  <http://jena.hpl.hp.com/ARQ/function#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX vcard:  <http://www.w3.org/2006/vcard/ns#>
+      SELECT ?externalURI ?externalServiceURI ?externalServiceName ?externalServiceURL
+      WHERE {  
+         ?individualURI owl:sameAs ?externalURI . 
+         ?externalURI rdf:type core:ExternalEntity. 
+         ?externalURI core:externalServiceDefinition ?externalServiceURI . 
+         ?externalServiceURI core:externalURL ?externalServiceURL . 
+         ?externalServiceURI rdfs:label ?externalServiceName .  
+      } 
+        """ .

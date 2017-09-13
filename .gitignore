@@ -8,6 +8,12 @@ __MACOSX
 .classpath
 .sass-cache/
 
+**/.idea
+**/*.iml
+**/target
+
+**/overlays
+
 # OS generated files #
 ######################
 */.DS_Store
@@ -20,3 +26,15 @@ Icon?
 ehthumbs.db
 Thumbs.db
 
+#VIVO Files#
+/vivocode/.build/
+/vivocode/bin/
+/vivocode/rdf/abox/filegraph/externalLookupServices.n3
+vivocode/rdf/abox/filegraph/externalLookupServices.n3
+*/externalLookupServices.n3
+/vivocode/build.properties
+
+# UNAVCO script support
+api_settings.json
+*.pyc
+matchlistfile.pickle
