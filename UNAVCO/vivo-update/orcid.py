@@ -16,8 +16,8 @@ import re
 import time
 import json
 import sys
-from namespace import(VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL,
-                      WGS84, EC)
+from namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF,
+                       VLOCAL, WGS84, EC)
 from api_fx import (vivo_api_query, uri_gen, load_settings, sparql_update,
                     vivo_api_construct)
 
@@ -249,6 +249,7 @@ def fetch_degrees_from_vivo():
     g_degrees = Graph(namespace_manager=ns.ns_manager)
     g_degrees = vivo_api_construct(query=query, g=g_orgs)
     return g_degrees
+
 
 r_token = fetch_orcid_token()
 if 'access_token' in r_token:
