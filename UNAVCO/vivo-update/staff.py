@@ -111,6 +111,7 @@ def get_employees(gemp):
              "} ")
 
     gemp = vivo_api_construct(query, gemp)
+    return(gemp)
 
 
 def get_person(name, g=None):
@@ -304,7 +305,8 @@ def new_email_triples(vcard_uri, email, g):
     g.add((D[new_email_uri], VCARD.email, Literal(email)))
 
 
-get_employees(gemp)  # UNAVCO employees in an RDF graph for subsequent queries
+# UNAVCO employees in an RDF graph for subsequent queries
+gemp = get_employees(gemp)
 print('Employee query returned {} triples.'.format(len(gemp)))
 
 HEADERS = {
