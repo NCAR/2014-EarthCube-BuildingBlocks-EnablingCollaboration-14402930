@@ -1,0 +1,32 @@
+@prefix bibo: <http://purl.org/ontology/bibo/> .
+@prefix cito: <http://purl.org/spar/cito/> .
+@prefix d: <http://connect.unavco.org/individual/> .
+@prefix ec: <https://library.ucar.edu/earthcollab/schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix vivo: <http://vivoweb.org/ontology/core#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+d:dat493947 a vivo:Dataset ;
+    rdfs:label "Kenai 2015" ;
+    bibo:doi "10.7283/T50C4T59" ;
+    vivo:dateTimeValue d:n126882 ;
+    vivo:relatedBy d:n935737 ;
+    ec:hasDatasetType d:n546123 .
+
+d:n126882 a vivo:DateTimeValue ;
+    vivo:dateTime "2017-01-01T00:00:00"^^xsd:dateTime ;
+    vivo:dateTimePrecision vivo:yearPrecision .
+
+d:per243342 vivo:relatedBy d:n935737 .
+
+d:n935737 a vivo:Authorship ;
+    vivo:rank "1"^^xsd:int ;
+    vivo:relates d:dat493947,
+        d:per243342 .
+
