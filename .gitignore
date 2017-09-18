@@ -38,3 +38,4 @@ vivocode/rdf/abox/filegraph/externalLookupServices.n3
 api_settings.json
 *.pyc
 matchlistfile.pickle
+virtualenv/
