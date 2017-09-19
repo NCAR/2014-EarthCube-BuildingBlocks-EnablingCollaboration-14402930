@@ -1,16 +1,34 @@
-# UNAVCO Membership Update Script
+# Connect UNAVCO Update Scripts
+This folder contains a collection of scripts to aid in updating Connect UNAVCO, either by utilizing a pulically availably API or scraping webpages.
+
+## Setup
+You should be able to install the necessary dependencies with:
+```
+python setup.py install
+```
+
+Also, modify the variables at the top of api_settings.json.example and rename to api_settings.json.
+
+## Scripts
+- citations.py
+- conceptcloud.py
+- grabDatacite.py
+- grants.py
+- members.py
+- orcid.py
+- staff.py
+- stations.py
+
+## members.py UNAVCO Membership Update Script
 This script parses UNAVCO's membership XML file and creates RDF to reflect updates. Optionally, it uploads the RDF directly into VIVO using the Update API.
 - - - -
-
-## How to
-Modify the variables at the top of api_settings.json.example and rename to api_settings.json.
-$ python members.py
+Run with python members.py
 
 -or-
 
 Set up a cron job and run the script automatically with the --api and -a flags set.
 
-## Options
+### Options
 ```
 usage: members.py [-h] [--api] [-a] [-f {xml,n3,turtle,nt,pretty-xml,trix}]
 
