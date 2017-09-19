@@ -11,11 +11,12 @@ import vivo_update_fx.namespace as ns
 import argparse
 import csv
 import time
+import pickle
 from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
                                       RDFS, RDF, VLOCAL, WGS84, EC)
-                       
 from vivo_update_fx.api_fx import (vivo_api_query, uri_gen, new_vcard,
-                                   sparql_update)
+                                   sparql_update, assign_piship)
+from vivo_update_fx.utility import load_matchlist, input_func_test
 
 
 if __name__ == '__main__':
@@ -24,6 +25,10 @@ if __name__ == '__main__':
                         action="store_true", help="Send the newly created "
                         "triples to VIVO using the update API. Note, there "
                         "is no undo button! You have been warned!")
+    parser.add_argument("--pi", default=False, dest="add_pi",
+                        action="store_true", help="Manually enter a "
+                        "comma-separated list of PIs for each new station "
+                        "e.g. Benjamin Gross, Beth Bartel, Bob Ross")
     parser.add_argument("-f", "--format", default="turtle", choices=["xml",
                         "n3", "turtle", "nt", "pretty-xml", "trix"], help="The"
                         " RDF format for serializing. Default is turtle.")
@@ -65,6 +70,9 @@ log = logging.getLogger(__name__)
 # Instantiate a graph and namespace
 g = Graph(namespace_manager=ns.ns_manager)
 gout = Graph(namespace_manager=ns.ns_manager)
+
+# Support Python 2 and 3
+input_func = input_func_test()
 
 
 def get_stations_in_vivo():
@@ -215,6 +223,34 @@ for station in r:
             g.add((D[chID], WGS84.long, Literal(lon, datatype=XSD.decimal)))
 
         donethat.append(chID)
+
+        if args.add_pi:
+            pi_list = input_func('Manually enter a comma-separated list of PIs'
+                                 ' for {0} (e.g. Benjamin Gross, Beth Bartel, '
+                                 'Bob Ross)\n'.format(chID))
+            pi_list = pi_list.split(',')
+            matchlist = load_matchlist()
+            for pi in pi_list:
+                pi = pi.strip()
+                if pi in matchlist[0]:
+                    pos = matchlist[0].index(pi)
+                    assign_piship(matchlist[1][pos], g, chID,
+                                  pi, matchlist)
+                else:
+                    surname = pi.split(' ')[-1]
+                    first_name = pi.split(' ')[:-1]
+                    first_name = ' '.join(first_name)
+                    author_uri = input_func('{0} not in matchlist, enter a '
+                                            'URI (e.g. UNAVCO Community is '
+                                            'per794390) or press '
+                                            'enter to create a vCard.\n'
+                                            .format(pi))
+                    if author_uri == '':
+                        author_uri = new_vcard(first_name, surname, pi, g)
+                    assign_piship(author_uri, g, chID,
+                                  pi, matchlist)
+            with open('matchlistfile.pickle', 'wb') as f:
+                pickle.dump(matchlist, f)
 
     # Station is in VIVO and is decommissioned, but not listed so in VIVO
     elif(in_vivo_list[chID] is None and station['Status']['Id'] ==

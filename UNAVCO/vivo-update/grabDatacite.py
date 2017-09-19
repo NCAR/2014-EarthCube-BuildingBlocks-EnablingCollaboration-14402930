@@ -14,14 +14,13 @@ from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
 from vivo_update_fx.datacite_fx import datacite_lookup
 from vivo_update_fx.api_fx import (uri_gen, name_lookup,
                                    name_selecter, assign_authorship,
-                                   get_datasets_in_vivo, sparql_update)                 
+                                   get_datasets_in_vivo, sparql_update)
 from vivo_update_fx.json_fx import parse_publication_date, parse_authors
-from vivo_update_fx.utility import join_if_not_empty, add_date
+from vivo_update_fx.utility import join_if_not_empty, add_date, load_matchlist
 journallist = [[], []]
 subjectlist = [[], []]
 count = 0
 
-matchlist = [[], []]
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -35,17 +34,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-if os.path.exists('matchlistfile.pickle'):
-    with open('matchlistfile.pickle', 'rb') as f:
-        try:
-            matchlist = pickle.load(f)
-        except EOFError:
-            print('matchlistfile.pickle malformed, ignoring')
-            matchlist = [[], []]
-else:
-    print('No matchlistfile.pickle file, new person objects will be '
-          'created')
-    matchlist = [[], []]
+
+matchlist = load_matchlist()
 
 timestamp = str(datetime.now())[:-7]
 

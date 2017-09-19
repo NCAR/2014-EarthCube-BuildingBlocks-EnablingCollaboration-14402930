@@ -340,6 +340,7 @@ def name_lookup(name):
         roll.append(preroll)
     return roll
 
+
 def name_selecter(roll, full_name, g, first_name, surname, pub_uri, matchlist,
                   rank=None):
     # if none of the possibilities are foaf, just make a new vcard
@@ -493,3 +494,15 @@ def get_datasets_in_vivo():
             datasets[0].append(uri)
             datasets[1].append(doi)
         return datasets
+
+
+def assign_piship(author_id, g, chID, full_name, matchlist):
+    piship_uri = uri_gen('n')
+    g.add((D[chID], VIVO.relates, D[piship_uri]))
+    g.add((D[author_id], OBO.RO_0000053, D[piship_uri]))
+    g.add((D[piship_uri], RDF.type, VIVO.PrincipalInvestigatorRole))
+    g.add((D[piship_uri], OBO.RO_0000052, D[author_id]))
+    g.add((D[piship_uri], VIVO.relatedBy, D[chID]))
+    matchlist[0].append(full_name)
+    matchlist[1].append(author_id)
+    return matchlist

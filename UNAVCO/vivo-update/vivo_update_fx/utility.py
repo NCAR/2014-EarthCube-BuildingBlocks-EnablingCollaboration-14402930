@@ -1,15 +1,19 @@
 from rdflib import RDF, RDFS, XSD, Literal
-#from vivo_namespace import VIVO
 from numbers import Number
 from SPARQLWrapper import SPARQLWrapper
 from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D
 import unicodedata
 import sys
+import os
+import pickle
 
 tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
-                      if unicodedata.category(unichr(i)).startswith('P'))
+                    if unicodedata.category(unichr(i)).startswith('P'))
+
+
 def remove_punctuation(text):
     return text.translate(tbl)
+
 
 def num_to_str(num):
     """
@@ -83,18 +87,19 @@ def add_date(date_uri, year, g, month=None, day=None, label=None):
 
     Return True if date was added.
     """
-    #Date
+    # Date
     if year:
         g.add((date_uri, RDF.type, VIVO.DateTimeValue))
-        #Day, month, and year
+        # Day, month, and year
         if day and month:
-            g.add((date_uri, VIVO.dateTimePrecision, VIVO.yearMonthDayPrecision))
+            g.add((date_uri, VIVO.dateTimePrecision,
+                   VIVO.yearMonthDayPrecision))
             g.add((date_uri, VIVO.dateTime,
                    Literal("%s-%02d-%02dT00:00:00" % (
                        int(year), month_str_to_month_int(month), int(day)),
                        datatype=XSD.dateTime)))
-    #        g.add((date_uri, RDFS.label, Literal(label or "%s %s, %s" % (month_int_to_month_str(month), num_to_str(day), num_to_str(year)))))
-        #Month and year
+    #        g.add((date_uri, RDFS.label,Literal(label or "%s %s, %s" % (month_int_to_month_str(month), num_to_str(day), num_to_str(year)))))
+        # Month and year
         elif month:
             g.add((date_uri, VIVO.dateTimePrecision, VIVO.yearMonthPrecision))
             g.add((date_uri, VIVO.dateTime,
@@ -103,7 +108,7 @@ def add_date(date_uri, year, g, month=None, day=None, label=None):
                        datatype=XSD.dateTime)))
     #        g.add((date_uri,RDFS.label,Literal(label or "%s %s" % (month, num_to_str(year)))))
         else:
-            #Just year
+            # Just year
             g.add((date_uri, VIVO.dateTimePrecision, VIVO.yearPrecision))
             g.add((date_uri, VIVO.dateTime,
                    Literal("%s-01-01T00:00:00" % (
@@ -128,12 +133,12 @@ def add_date_interval(interval_uri, subject_uri, g, start_uri=None, end_uri=None
 
 
 def sparql_insert(graph, endpoint, username, password):
-    #Need to construct query
+    # Need to construct query
     ns_lines = []
     triple_lines = []
     for line in graph.serialize(format="turtle").splitlines():
         if line.startswith("@prefix"):
-            #Change from @prefix to PREFIX
+            # Change from @prefix to PREFIX
             ns_lines.append("PREFIX" + line[7:-2])
         else:
             triple_lines.append(line)
@@ -147,3 +152,27 @@ def sparql_insert(graph, endpoint, username, password):
     sparql.setQuery(query)
     sparql.setMethod("POST")
     sparql.query()
+
+
+def load_matchlist():
+    if os.path.exists('matchlistfile.pickle'):
+        with open('matchlistfile.pickle', 'rb') as f:
+            try:
+                return(pickle.load(f))
+            except EOFError:
+                print('matchlistfile.pickle malformed, ignoring')
+                return([[], []])
+    else:
+        print('No matchlistfile.pickle file, new person objects will be '
+              'created')
+        return([[], []])
+
+
+def input_func_test():
+    # Support Python 2 and 3
+    input_func = None
+    try:
+        input_func = raw_input
+        return(input_func)
+    except NameError:
+        return(input)
