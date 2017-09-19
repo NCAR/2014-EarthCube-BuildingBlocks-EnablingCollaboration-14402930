@@ -7,11 +7,13 @@ from logging import handlers
 from datetime import datetime
 from rdflib import Literal, Graph, XSD, URIRef
 from rdflib.namespace import Namespace
-import namespace as ns
+import vivo_update_fx.namespace as ns
 import argparse
 import json
-from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL
-from api_fx import vivo_api_query, uri_gen, new_vcard, sparql_update
+from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
+                                      RDFS, RDF, VLOCAL)
+from vivo_update_fx.api_fx import (vivo_api_query, uri_gen, new_vcard,
+                                   sparql_update)
 
 UNAVCO_ID = 'org253530'
 

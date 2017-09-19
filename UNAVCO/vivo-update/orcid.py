@@ -9,17 +9,17 @@ from logging import handlers
 from datetime import datetime
 from rdflib import Literal, Graph, XSD, URIRef
 from rdflib.namespace import Namespace
-import namespace as ns
+import vivo_update_fx.namespace as ns
 import argparse
 import csv
 import re
 import time
 import json
 import sys
-from namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF,
-                       VLOCAL, WGS84, EC)
-from api_fx import (vivo_api_query, uri_gen, load_settings, sparql_update,
-                    vivo_api_construct)
+from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
+                                      RDFS, RDF, VLOCAL, WGS84, EC)
+from vivo_update_fx.api_fx import (vivo_api_query, uri_gen, load_settings,
+                                   sparql_update, vivo_api_construct)
 
 
 if __name__ == '__main__':

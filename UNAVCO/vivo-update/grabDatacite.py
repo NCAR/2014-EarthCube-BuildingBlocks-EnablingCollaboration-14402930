@@ -2,19 +2,21 @@ import requests
 import argparse
 import codecs
 import pickle
-import jsonpickle
 from datetime import datetime
 import csv
+import os
 import sys
 from rdflib import Literal, Graph
 from rdflib.namespace import Namespace
-import namespace as ns
-from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, EC
-from api_fx import (datacite_lookup, uri_lookup_doi, uri_gen, name_lookup,
-                    name_selecter, assign_authorship, get_datasets_in_vivo,
-                    sparql_update)
-from json_fx import parse_publication_date, parse_authors
-from utility import join_if_not_empty, add_date
+import vivo_update_fx.namespace as ns
+from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
+                                      RDFS, RDF, EC)
+from vivo_update_fx.datacite_fx import datacite_lookup
+from vivo_update_fx.api_fx import (uri_gen, name_lookup,
+                                   name_selecter, assign_authorship,
+                                   get_datasets_in_vivo, sparql_update)                 
+from vivo_update_fx.json_fx import parse_publication_date, parse_authors
+from vivo_update_fx.utility import join_if_not_empty, add_date
 journallist = [[], []]
 subjectlist = [[], []]
 count = 0
@@ -33,13 +35,17 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-with open('matchlistfile.pickle', 'ab+') as f:
-    try:
-        matchlist = pickle.load(f)
-    except EOFError:
-        print('No matchlistfile.pickle file, new person objects will be '
-              'created')
-        matchlist = [[], []]
+if os.path.exists('matchlistfile.pickle'):
+    with open('matchlistfile.pickle', 'rb') as f:
+        try:
+            matchlist = pickle.load(f)
+        except EOFError:
+            print('matchlistfile.pickle malformed, ignoring')
+            matchlist = [[], []]
+else:
+    print('No matchlistfile.pickle file, new person objects will be '
+          'created')
+    matchlist = [[], []]
 
 timestamp = str(datetime.now())[:-7]
 

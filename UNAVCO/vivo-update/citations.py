@@ -6,10 +6,11 @@ import multiprocessing
 from datetime import datetime
 from rdflib import Literal, Graph, URIRef, XSD
 from rdflib.namespace import Namespace
-import namespace as ns
-from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, RDFS, RDF, VLOCAL
-from api_fx import (crossref_lookup, uri_gen, grab_corpus, vivo_api_query,
-                    sparql_update)
+import vivo_update_fx.namespace as ns
+from vivo_update_fx.namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D,
+                                      RDFS, RDF, VLOCAL)
+from vivo_update_fx.api_fx import (crossref_lookup, uri_gen, grab_corpus,
+                                   vivo_api_query, sparql_update)
 import itertools
 
 
