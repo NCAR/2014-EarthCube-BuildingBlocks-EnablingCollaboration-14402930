@@ -1,5 +1,5 @@
 # Connect UNAVCO Update Scripts
-This folder contains a collection of scripts to aid in updating Connect UNAVCO, either by utilizing a pulically availably API or scraping webpages.
+This folder contains a collection of scripts to aid in updating Connect UNAVCO, either by utilizing publically available APIs or scraping webpages.
 
 ## Setup
 You should be able to install the necessary dependencies with:
@@ -17,10 +17,33 @@ Also, modify the variables at the top of api_settings.json.example and rename to
 - members.py
 - orcid.py
 - staff.py
-- stations.py
+- stations.py 
 
-## members.py UNAVCO Membership Update Script
-This script parses UNAVCO's membership XML file and creates RDF to reflect updates. Optionally, it uploads the RDF directly into VIVO using the Update API.
+--- 
+ 
+## citations.py
+Grab citation counts from CrossRef for DOIs in Connect UNAVCO.
+
+## conceptcloud.py
+Update the word cloud on the Connect UNAVCO homepage using the latest expertise and research area counts.
+
+## grabDatacite.py
+Query datacite API for DOIs with UNAVCO's prefix (10.7283\*) and attempt to match to people with profiles in Connect UNAVCO.
+
+## grants.py
+Query NSF API for grants administered by or involving UNAVCO.
+
+## orcid.py
+Grab position and educational history from public ORCID profiles for those with ORCID IDs.
+
+## staff.py
+Scrape the UNAVCO staff page to get staff position and contact information. Note, you must be connected to UNAVCO's internal network.
+
+## stations.py
+Query the UNAVCO station info API to track new and retiring GPS stations.
+
+## members.py
+Parse UNAVCO's membership XML file and create RDF to reflect updates. Optionally, it uploads the RDF directly into VIVO using the Update API.
 - - - -
 Run with python members.py
 
