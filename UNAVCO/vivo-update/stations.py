@@ -232,6 +232,9 @@ for station in r:
             matchlist = load_matchlist()
             for pi in pi_list:
                 pi = pi.strip()
+                if pi == '': # Ignore blank entries
+                    log.info('Ignoring blank name.')
+                    continue
                 if pi in matchlist[0]:
                     pos = matchlist[0].index(pi)
                     assign_piship(matchlist[1][pos], g, chID,
@@ -251,6 +254,11 @@ for station in r:
                                   pi, matchlist)
             with open('matchlistfile.pickle', 'wb') as f:
                 pickle.dump(matchlist, f)
+
+    elif(chID not in in_vivo_list and chID in donethat):
+        log.warning('{} was returned by GSAC twice, this may happen if there '
+                    'are multiple data intervals for a single '
+                    'station.'.format(chID))
 
     # Station is in VIVO and is decommissioned, but not listed so in VIVO
     elif(in_vivo_list[chID] is None and station['Status']['Id'] ==
