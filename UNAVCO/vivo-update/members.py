@@ -45,7 +45,9 @@ KNOWN_ORGS = {'University Of Alaska Fairbanks': 'org420111',
               'org686835',
               'Universidad Nacional Pdro Henriquez Urena': 'org774882',
               'Universite du Quebec a Montreal (UQAM)': 'org198624',
-              'California State Polytechnic University Pomona': 'org523149'}
+              'California State Polytechnic University Pomona': 'org523149',
+              'Korea Institute of Geoscience and Mineral Resource':
+              'org530794'}
 
 REP_NICKNAMES = {'Cliff Muginer': 'Clifford Mugnier',
                  'Daniel Lao Davila': u'Daniel La\u00F3 D\u00E1vila',
@@ -154,42 +156,8 @@ def get_member(institution, uri=None):
 
     q_info = {}  # Create an empty dictionary
 
-    if uri:
-        query = ("PREFIX rdf: <"+RDF+"> "
-                 "PREFIX rdfs: <"+RDFS+"> "
-                 "PREFIX vlocal: <"+VLOCAL+"> "
-                 "PREFIX obo: <"+OBO+"> "
-                 "PREFIX vcard: <"+VCARD+"> "
-                 "PREFIX d: <"+D+"> "
-                 "PREFIX foaf:<"+FOAF+"> "
-                 "PREFIX vivo: <"+VIVO+"> "
-                 "SELECT ?orgLabel ?rep ?repName ?vCard ?email ?urlObj ?url "
-                 "?urlRank ?gName ?midName ?famName "
-                 "WHERE { "
-                 "d:"+uri+" rdfs:label ?orgLabel . "
-                 "d:"+uri+" a foaf:Organization . "
-                 "OPTIONAL{d:"+uri+" obo:RO_0000053 ?memberRole .} "
-                 "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
-                 "?rep rdfs:label ?repName . "
-                 "?rep obo:ARG_2000028 ?vcard . "
-                 "?vcard vcard:hasName ?name . "
-                 "?name vcard:givenName ?gName . "
-                 "?name vcard:familyName ?famName . } "
-                 "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
-                 "?rep obo:ARG_2000028 ?vcard . "
-                 "?vcard vcard:hasEmail ?email_obj . "
-                 "?email_obj vcard:email ?email . } "
-                 "OPTIONAL{?name vivo:middleName ?midName . } "
-                 "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . } "
-                 "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . "
-                 " ?vCard vcard:hasURL ?urlObj . "
-                 "?urlObj vcard:url ?url . } "
-                 "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . "
-                 "?vCard vcard:hasURL ?urlObj . "
-                 "?urlObj vivo:rank ?urlRank . } "
-                 "} ")
-
-    else:
+    # Get URI first to make the more complicated query efficient
+    if not uri:
         query = ("PREFIX rdf: <"+RDF+"> "
                  "PREFIX rdfs: <"+RDFS+"> "
                  "PREFIX vlocal: <"+VLOCAL+"> "
@@ -202,25 +170,55 @@ def get_member(institution, uri=None):
                  "WHERE { "
                  "?org rdfs:label ?orgLabel . "
                  "?org a foaf:Organization . "
-                 "OPTIONAL{?org obo:RO_0000053 ?memberRole .} "
-                 "OPTIONAL{?org vlocal:hasLiaison ?rep . "
-                 "?rep rdfs:label ?repName . "
-                 "?rep obo:ARG_2000028 ?vcard . "
-                 "?vcard vcard:hasName ?name . "
-                 "?name vcard:givenName ?gName . "
-                 "?name vcard:familyName ?famName . } "
-                 "OPTIONAL{?name vivo:middleName ?midName . } "
-                 "OPTIONAL{ ?vcard vcard:hasEmail ?email_obj . "
-                 "?email_obj vcard:email ?email . } "
-                 "OPTIONAL{ ?org obo:ARG_2000028 ?vCard . } "
-                 "OPTIONAL{ ?org obo:ARG_2000028 ?vCard . "
-                 "?vCard vcard:hasURL ?urlObj . "
-                 "?urlObj vcard:url ?url . } "
-                 "OPTIONAL{ ?org obo:ARG_2000028 ?vCard . "
-                 "?vCard vcard:hasURL ?urlObj . "
-                 "?urlObj vivo:rank ?urlRank . } "
                  "FILTER (lcase(STR(?orgLabel)) = '" +
                  institution.lower() + "')} ")
+
+        bindings_uri = vivo_api_query(query)
+        if bindings_uri:
+            bindings_uri = bindings_uri[0]  # We hope there's only one result
+            if "org" in bindings_uri:
+                uri = bindings_uri["org"]["value"].replace(D, '')
+            else:
+                log.warning('Could not find an organization in VIVO matching '
+                            'the member name "{}"'.format(institution))
+                return None
+        else:
+            log.warning('No results from VIVO Query API')
+            return None
+
+    query = ("PREFIX rdf: <"+RDF+"> "
+             "PREFIX rdfs: <"+RDFS+"> "
+             "PREFIX vlocal: <"+VLOCAL+"> "
+             "PREFIX obo: <"+OBO+"> "
+             "PREFIX vcard: <"+VCARD+"> "
+             "PREFIX d: <"+D+"> "
+             "PREFIX foaf:<"+FOAF+"> "
+             "PREFIX vivo: <"+VIVO+"> "
+             "SELECT ?orgLabel ?rep ?repName ?vCard ?email ?urlObj ?url "
+             "?urlRank ?gName ?midName ?famName "
+             "WHERE { "
+             "d:"+uri+" rdfs:label ?orgLabel . "
+             "d:"+uri+" a foaf:Organization . "
+             "OPTIONAL{d:"+uri+" obo:RO_0000053 ?memberRole .} "
+             "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
+             "?rep rdfs:label ?repName . "
+             "?rep obo:ARG_2000028 ?vcard . "
+             "?vcard vcard:hasName ?name . "
+             "?name vcard:givenName ?gName . "
+             "?name vcard:familyName ?famName . } "
+             "OPTIONAL{d:"+uri+" vlocal:hasLiaison ?rep . "
+             "?rep obo:ARG_2000028 ?vcard . "
+             "?vcard vcard:hasEmail ?email_obj . "
+             "?email_obj vcard:email ?email . } "
+             "OPTIONAL{?name vivo:middleName ?midName . } "
+             "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . } "
+             "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . "
+             " ?vCard vcard:hasURL ?urlObj . "
+             "?urlObj vcard:url ?url . } "
+             "OPTIONAL{ d:"+uri+" obo:ARG_2000028 ?vCard . "
+             "?vCard vcard:hasURL ?urlObj . "
+             "?urlObj vivo:rank ?urlRank . } "
+             "} ")
 
     bindings = vivo_api_query(query)
     if bindings:
