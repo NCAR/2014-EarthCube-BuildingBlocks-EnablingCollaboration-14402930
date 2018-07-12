@@ -3,9 +3,10 @@ import random
 import logging
 import json
 from rdflib import Literal, Graph
-from rdflib.namespace import Namespace, RDF, RDFS, XSD
+from rdflib.namespace import Namespace, XSD
 import namespace as ns
-from namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, CITO
+from namespace import (VIVO, VCARD, OBO, BIBO, FOAF, SKOS, D, CITO,
+                       RDFS, RDF, VLOCAL, WGS84, EC)
 from SPARQLWrapper import SPARQLWrapper
 from fuzzywuzzy import fuzz, process, utils
 from operator import itemgetter
@@ -490,10 +491,36 @@ def get_datasets_in_vivo():
         datasets = [[], []]
         for dataset in bindings:
             doi = dataset["dataset"]["value"].replace(D, '')
-            uri = dataset["doi"]["value"]
+            uri = dataset["doi"]["value"].lower()
             datasets[0].append(uri)
             datasets[1].append(doi)
         return datasets
+
+
+def get_stations_in_vivo():
+    query = ("PREFIX rdf: <"+RDF+"> "
+             "PREFIX vcard: <"+VCARD+"> "
+             "PREFIX rdfs: <"+RDFS+"> "
+             "PREFIX vivo: <"+VIVO+"> "
+             "PREFIX obo: <"+OBO+"> "
+             "PREFIX vlocal: <"+VLOCAL+"> "
+             "PREFIX ec: <"+EC+"> "
+
+             "SELECT * WHERE { "
+             "GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> { "
+             "?station a ec:Station . "
+             "?station rdfs:label ?stationLabel . "
+             "?station vlocal:has4CharID ?id "
+             "OPTIONAL {?station vivo:dateTimeValue ?dtval. "
+             "?dtval vivo:dateTime ?date . }"
+             "}} ")
+
+    gstat = vivo_api_query(query=query)
+    in_vivo_list = {}
+
+    for station in gstat:
+        in_vivo_list[station['id']['value']] = station['station']['value']
+    return in_vivo_list
 
 
 def assign_piship(author_id, g, chID, full_name, matchlist):

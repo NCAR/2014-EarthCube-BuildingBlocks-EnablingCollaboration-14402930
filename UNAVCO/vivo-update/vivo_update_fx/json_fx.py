@@ -24,3 +24,16 @@ def parse_authors(doi_record):
                 authors.append((given_name, family_name))
 
     return authors
+
+def parse_authors_datacite(authors):
+    author_list = []
+    if authors:
+        for author in authors:
+            if 'lastName' in author:
+                given_name = author['firstName']
+                family_name = author['lastName']
+                author_list.append((given_name, family_name))
+            else:
+                print('Warning, check this author... {}'.format(author))
+
+    return author_list
